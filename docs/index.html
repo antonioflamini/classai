@@ -79,6 +79,7 @@ ol,ul{padding-left:20px;margin:6px 0}
 </div>
 <label for="lv">Ordine di scuola</label>
 <select id="lv"><option>Infanzia</option><option>Primaria</option><option>Secondaria di I grado</option><option selected>Secondaria di II grado</option></select>
+<div id="upbox" class="card" style="background:var(--ac2);margin:8px 0" hidden></div>
 <label for="pdf">Carica la circolare (PDF scaricato dal sito o dal registro)</label>
 <input id="pdf" type="file" accept="application/pdf,.pdf,.txt,text/plain"><p class="note" id="pdfst">Il file viene letto sul tuo telefono: non viene inviato a nessuno.</p>
 <label for="in">…oppure incolla il testo della circolare</label>
@@ -128,10 +129,11 @@ async function pdfToText(file){const lib=await loadPdfJs(),doc=await lib.getDocu
 $("pdf").onchange=async()=>{const f=$("pdf").files[0],st=$("pdfst");if(!f)return;st.className="note";st.textContent="Leggo "+f.name+"…";
  try{const t=/\.txt$/i.test(f.name)||f.type==="text/plain"?(await f.text()).trim():await pdfToText(f);
   if(t.replace(/\s/g,"").length<80){st.className="note wa";st.textContent="Il PDF sembra una scansione (immagine senza testo): non riesco a leggerlo. Copia a mano le informazioni principali qui sotto.";return}
-  $("in").value=t;st.className="note ok";st.textContent="✔ Letto "+f.name+" ("+t.split(/\s+/).length+" parole). Preparo la bozza…";$("go").click()}
+  $("in").value=t;st.className="note ok";st.textContent="✔ Letto "+f.name+" ("+t.split(/\s+/).length+" parole). Preparo la bozza…";
+  window.CURURL=window.UPIT&&/^https?:\/\//i.test(UPIT.url||"")?UPIT.url:"";$("go").click();window.CURURL=""}
  catch(e){st.className="note er";st.textContent="Non riesco a leggere il file: "+(e.message||e)}
  finally{$("pdf").value=""}};
-$("cl").onclick=()=>{$("in").value="";["pipe","res","vf"].forEach(i=>$(i).hidden=true)};
+$("cl").onclick=()=>{$("in").value="";window.UPIT=null;$("upbox").hidden=true;["pipe","res","vf"].forEach(i=>$(i).hidden=true)};
 
 /* ---------- AGENTI ---------- */
 function lettore(t){const s=t.replace(/^(\s*oggetto\s*:[^\n]*?)[ \t]*$/im,(m,a)=>/[.!?:;]$/.test(a)?a:a+".").replace(/\s+/g," ").trim();return{s,parole:s.split(" ").length}}
@@ -313,12 +315,21 @@ function greet(){const h=new Date().getHours(),g=h<12?"Buongiorno":h<18?"Buon po
  m+=!(D.items||[]).length?"Non ho ancora letto il sito: attendo il primo controllo automatico.":nv?"Ci sono "+nv+" comunicazioni nuove per te.":"Nessuna novità dall’ultima volta.";
  if(sd.length){const s=sd[0];m+=" Prossima scadenza: "+s.it.title.slice(0,60)+", "+(s.dd===0?"oggi":s.dd===1?"domani":"tra "+s.dd+" giorni")+"."}
  $("hmsg").textContent=m;$("hmsg").className="hmsg"+(sd.length&&sd[0].dd<=3?" urg":"");log("ClassAI: "+m,"a")}
+const unread=it=>it.status==="titolo"||it.status==="illeggibile"||(it.type==="pdf"&&(it.text||"").length<250);
+let PENDING=new URLSearchParams(location.search).get("carica");
+function openUpload(it){window.UPIT=it;const det=document.querySelector("details.card");det.open=true;const b=$("upbox");b.textContent="";
+ const h=document.createElement("b");h.textContent="📄 "+it.title;const p=document.createElement("p");p.className="note";
+ p.textContent="ClassAI non è riuscito a leggere questa circolare. 1) Apri l’originale e scarica il PDF  2) Caricalo qui sotto: preparo la bozza con data, scadenze e il link ufficiale.";
+ const a=document.createElement("a");a.href=/^https?:\/\//i.test(it.url||"")?it.url:"#";a.target="_blank";a.rel="noopener";a.textContent="Apri l’originale ↗";
+ b.append(h,p,a);b.hidden=false;$("pdfst").className="note";$("pdfst").textContent="Il file viene letto sul tuo telefono: non viene inviato a nessuno.";
+ b.scrollIntoView({behavior:"smooth",block:"start"});say("Apri l’originale, scarica il PDF e caricalo qui: preparo io la bozza.")}
 function card(x){const it=x.it,el=document.createElement("div");el.className="ag";
  const b=document.createElement("div"),w=document.createElement("div"),h=document.createElement("b"),sp=document.createElement("span"),bt=document.createElement("div");
  const unr=it.found>ls("ca_last");b.textContent=!it.text?"❓":x.r.ok?"📣":"🚫";h.textContent=(unr?"● ":"")+it.title;
  sp.textContent=(it.text?x.r.why+" — "+(it.sunto&&it.sunto.testo||sunto(lettore(it.text).s)[0]||"").slice(0,160):"Testo non leggibile (scansione): apri l’originale")+" · "+(it.type==="pdf"?"PDF":"pagina")+(it.status==="ocr"?" (letto con OCR: ricontrolla)":"")+(it.status==="titolo"?" · solo titolo: apri l’originale per i dettagli":"")+(it.sunto?" · 🤖✓ sunto verificato":"")+(it.rettDi?" · 🔁 rettifica di "+it.rettDi.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+(it.sostDa?" · ⚠ aggiornata da "+it.sostDa.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+" · "+it.found;
  bt.className="btns";const a=document.createElement("a");a.href=/^https?:\/\//i.test(it.url||"")?it.url:"#";a.target="_blank";a.rel="noopener";a.textContent="Originale";bt.append(a);
  if(it.text){const g=document.createElement("button");g.textContent="Prepara messaggio";g.onclick=()=>prep(it);bt.append(g)}
+ if(unread(it)){const u=document.createElement("button");u.className="sec";u.textContent="📄 Carica PDF";u.onclick=()=>openUpload(it);bt.append(u)}
  w.append(h,sp,bt);el.append(b,w);return el}
 function render(){CUR=mine().filter(x=>x.it.text&&x.r.ok);const f=$("fl");f.textContent="";
  document.querySelectorAll("#tabs button").forEach(b=>b.style.outline=b.dataset.t===TAB?"2px solid var(--ac)":"none");
@@ -369,8 +380,10 @@ async function load(){const sid=ls("ca_sch"),s=SS.schools.find(x=>x.id===sid);wi
   $("hmsg").textContent="La tua scuola non è ancora monitorata: invia la richiesta qui sotto a chi gestisce ClassAI.";return}
  $("req").hidden=true;$("sc").value=s.name;ls("ca_sc",s.name);
  try{D=await (await fetch("data/"+s.id+".json",{cache:"no-cache"})).json()}catch(e){D={items:[]}}
- const sn=ls("ca_since");if(sn)D.items=(D.items||[]).filter(it=>{const d=(it.pub||it.found||"").slice(0,10);return!d||d>=sn});collega(D.items||[]);
- render();greet();ls("ca_last",new Date().toISOString().slice(0,10)+" 00:00")}
+ D.all=D.items||[];const sn=ls("ca_since");if(sn)D.items=(D.items||[]).filter(it=>{const d=(it.pub||it.found||"").slice(0,10);return!d||d>=sn});collega(D.items||[]);
+ render();greet();ls("ca_last",new Date().toISOString().slice(0,10)+" 00:00");
+ if(PENDING){const it=(D.items||[]).find(x=>x.id===PENDING)||(D.all||[]).find(x=>x.id===PENDING);PENDING=null;history.replaceState(null,"",location.pathname);
+  if(it)openUpload(it);else say("Non trovo più quella circolare: cercala nell’elenco «Tutto».")}}
 function save(){const nm=$("nm2").value.trim(),cls=$("cls").value.trim().toUpperCase(),sid=$("sch").value,e=$("serr");
  if(!nm){e.textContent="Scrivi il tuo nome.";return}
  if(!/^[1-5][A-Z]{0,3}$/.test(cls.replace(/[\s^°]/g,""))){e.textContent="Classe non valida: usa ad esempio 3AS.";return}

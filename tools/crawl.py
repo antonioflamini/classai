@@ -170,10 +170,13 @@ def crawl(sc):
     json.dump(seen, open(sp, "w", encoding="utf-8"))
     if not first:
         hot = [i for i in new if (("Famiglie" in i["tip"] or "Alunni" in i["tip"]) if "tip" in i else (i["score"] >= 1 and not (STAFF.search(i["title"] + i["text"][:1500]) and not FAM.search(i["text"][:3000]))))]
-        if hot: tg(f"🏫 {sc['name']} – novità:\n" + "\n".join(f"• {'🔁 ' if re.search('rettific|integrazion|annull', i['title'], re.I) else ''}{i['title']}\n{i['url']}" + ("\n📝 " + i["sunto"]["testo"] if i.get("sunto") else "") for i in hot[:10]) + "\n\nApri ClassAI per la bozza WhatsApp.")
+        import digest
+        if hot:
+            tg(f"🏫 {sc['name']} – novità:\n" + "\n\n".join(f"• {'🔁 ' if re.search('rettific|integrazion|annull', i['title'], re.I) else ''}{i['title']}\n{i['url']}" + ("\n📝 " + i["sunto"]["testo"] if i.get("sunto") else "") + digest.upload_hint(i, cfg) for i in hot[:10]) + "\n\nApri ClassAI per la bozza WhatsApp.")
+            if len(hot) > 10: tg(f"…e altre {len(hot) - 10} comunicazioni: le trovi in ClassAI.")
     if not first:
         try:
-            import digest; digest.notify_new(sc, new, cfg.get("salt", ""))
+            import digest; digest.notify_new(sc, new, cfg.get("salt", ""), cfg)
         except Exception as e: print("ntfy:", e)
     if errs: tg("⚠️ ClassAI non riesce a leggere il sito:\n" + "\n".join(errs))
     print(sid, n, "pagine,", len(new), "nuove,", len(errs), "errori")

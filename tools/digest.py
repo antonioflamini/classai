@@ -52,6 +52,18 @@ def tg(msg):
         try: urllib.request.urlopen(f"https://api.telegram.org/bot{tok}/sendMessage", urllib.parse.urlencode({"chat_id": chat, "text": msg[:4000], "disable_web_page_preview": "true"}).encode(), timeout=20)
         except Exception as e: print("telegram:", e)
 
+def unread(it):
+    """Circolare di cui ClassAI non ha il testo: allegato bloccato/assente, scansione illeggibile o testo troppo corto."""
+    return it.get("status") in ("titolo", "illeggibile") or (it.get("type") == "pdf" and len(it.get("text") or "") < 250)
+
+def app_url(cfg):
+    u, _, r = (cfg.get("repo") or "").partition("/")
+    return cfg.get("app_url") or (f"https://{u.lower()}.github.io/{r}/" if u and r else "")
+
+def upload_hint(it, cfg):
+    a = app_url(cfg)
+    return ("\n📄 Non sono riuscito a leggerla: aprila, scarica il PDF e caricalo in ClassAI" + (f":\n{a}?carica={it['id']}" if a else ".")) if unread(it) else ""
+
 def short(it): return ("🔁 " if re.search(r"rettific|integrazion|annull", it["title"], re.I) else "") + re.sub(r"^Comunicazione n\. (\d+): ", r"n. \1 – ", it["title"])[:100]
 
 def profiles(sc):
@@ -66,11 +78,11 @@ def ntfy(tp, title, msg, click=""):
     try: urllib.request.urlopen(urllib.request.Request(os.getenv("NTFY_SERVER", "https://ntfy.sh"), body, {"Content-Type": "application/json"}), timeout=20)
     except Exception as e: print("ntfy:", e)
 
-def notify_new(sc, new, salt):
+def notify_new(sc, new, salt, cfg=None):
     """Chiamata da crawl.py: avvisa su ntfy, canale per canale, le comunicazioni nuove che riguardano la classe."""
     for prof in profiles(sc):
         for it in new:
-            if "score" in it and relevant(it, prof): ntfy(topic(sc, prof, salt), "ClassAI " + prof["classe"], short(it) + (("\n" + it["sunto"]["testo"]) if it.get("sunto") else ""), it["url"])
+            if "score" in it and relevant(it, prof): ntfy(topic(sc, prof, salt), "ClassAI " + prof["classe"], short(it) + (("\n" + it["sunto"]["testo"]) if it.get("sunto") else "") + upload_hint(it, cfg or {}), it["url"])
 
 def esc(t): return t.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
