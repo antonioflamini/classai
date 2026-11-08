@@ -1,6 +1,8 @@
 # Gestione di ClassAI (leggere se sei tu a prenderlo in carico)
 **Chi ha le chiavi:** il repository GitHub e i segreti Telegram (`TG_TOKEN`, `TG_CHAT`). Aggiungi come collaboratore almeno un secondo rappresentante, così non dipende da una persona sola (Settings → Collaborators).
 
+**Cambiare il bot Telegram o il token** (es. dopo `/revoke` in BotFather): scrivi "ciao" al bot, poi nella cartella del progetto `python tools/telegram_setup.py` e incolla il token nuovo: aggiorna da solo i segreti su GitHub e manda un messaggio di prova.
+
 **Controlli automatici:** `monitor.yml` legge il sito ogni 4 ore; `digest.yml` manda i promemoria alle 7:30 circa (2 giorni prima, il giorno stesso, riepilogo del lunedì). Per forzarli: tab Actions → workflow → Run workflow.
 
 **Se non arrivano più novità**
