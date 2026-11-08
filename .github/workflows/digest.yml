@@ -1,0 +1,19 @@
+name: ClassAI promemoria
+on:
+  schedule: [{cron: "30 5,6 * * *"}]   # UTC: lo script invia una volta sola, alle 7:30 ora italiana tutto l'anno
+  workflow_dispatch:
+permissions: {contents: write}
+concurrency: classai-git
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python tools/digest.py
+        env: {TG_TOKEN: "${{ secrets.TG_TOKEN }}", TG_CHAT: "${{ secrets.TG_CHAT }}"}
+      - run: |
+          git config user.name classai; git config user.email bot@users.noreply.github.com
+          git add state docs/cal docs/data
+          git diff --cached --quiet || (git commit -m "promemoria" && git pull --rebase --autostash && git push)

@@ -1,0 +1,38 @@
+{
+  "owner": "Antonio",
+  "schools": [
+    {
+      "id": "apicio",
+      "name": "IIS Apicio Colonna Gatti",
+      "url": "https://www.iis-apicio-colonnagatti.edu.it",
+      "max_pages": 150,
+      "depth": 3,
+      "since": "2026-10-15",
+      "adapter": "pvw",
+      "digest": [
+        {
+          "classe": "3AS",
+          "indirizzo": "Operatore socio sanitario",
+          "alias": [
+            "3 A SS",
+            "terza A socio sanitario"
+          ]
+        }
+      ]
+    }
+  ],
+  "contact": {
+    "whatsapp": "393472763388"
+  },
+  "repo": "antonioflamini/classai",
+  "salt": "815fa94f",
+  "ai": {
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "fallback": [
+      "gemini-3.8-flash",
+      "gemini-2.5-flash-lite"
+    ],
+    "max_per_run": 12
+  }
+}

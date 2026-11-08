@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6b5c"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="i192.png">
+<title>ClassAI – Il copilota dei rappresentanti di classe</title>
+<style>
+:root{--bg:#f5f7f6;--card:#fff;--tx:#14211e;--mu:#5b6b67;--ac:#0b6b5c;--ac2:#e3f3ef;--bd:#d6e0dd;--ok:#1b7f3b;--wa:#b45309;--er:#b42318;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1513;--card:#17211e;--tx:#e8f0ee;--mu:#9bb0aa;--ac:#35c2a7;--ac2:#14302a;--bd:#2a3b36;--ok:#5ad27f;--wa:#f0b04a;--er:#ff8a7a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1513;--card:#17211e;--tx:#e8f0ee;--mu:#9bb0aa;--ac:#35c2a7;--ac2:#14302a;--bd:#2a3b36;--ok:#5ad27f;--wa:#f0b04a;--er:#ff8a7a;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:8px 0 2px}h2{font-size:1.05rem;margin:0 0 8px}
+.sub{color:var(--mu);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:.85rem;color:var(--mu);margin:8px 0 3px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+textarea{min-height:150px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+button{font:inherit;border:0;border-radius:10px;padding:11px 16px;background:var(--ac);color:#fff;cursor:pointer;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#06201a}}
+button.sec{background:var(--ac2);color:var(--ac)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ag{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--bd)}
+.ag:first-child{border-top:0}.ag b{display:block}.ag span{color:var(--mu);font-size:.9rem;word-break:break-word}
+.ok{color:var(--ok)}.wa{color:var(--wa)}.er{color:var(--er)}
+.chk{padding:6px 0;font-size:.95rem}
+#out{min-height:230px;font-family:ui-monospace,Menlo,monospace;font-size:.92rem}
+details summary{cursor:pointer;font-weight:600}
+ol,ul{padding-left:20px;margin:6px 0}
+.note{font-size:.85rem;color:var(--mu)}
+
+.hud{background:radial-gradient(circle at 50% 0,#06303b,#02090d 70%);border:1px solid #1fb8d4;border-radius:16px;color:#c8f7ff;padding:16px;text-align:center;box-shadow:0 0 28px #0cc6e844 inset,0 0 18px #0cc6e822;margin-bottom:14px}
+.hud input{background:#031319;color:#c8f7ff;border-color:#1a7d90}.hud button{background:#0fb5d1;color:#021a20}
+.hud .chips button,.hud .hrow #snd{background:#073642;color:#7be9ff;padding:7px 12px;font-weight:500}
+.orb{width:116px;height:116px;margin:4px auto 6px;position:relative}
+.orb i{position:absolute;inset:0;border-radius:50%;border:2px solid #36e0ff;border-top-color:transparent;animation:sp 7s linear infinite}
+.orb i:nth-child(2){inset:12px;border-style:dashed;animation-duration:4.5s;animation-direction:reverse}
+.orb i:nth-child(3){inset:26px;border-color:#9ff;border-bottom-color:transparent;animation-duration:2.8s}
+.core{position:absolute;inset:42px;border-radius:50%;background:radial-gradient(#fff,#36e0ff 60%,#0a8);box-shadow:0 0 30px #36e0ff;animation:br 3.2s ease-in-out infinite}
+.orb.listen .core{background:radial-gradient(#fff,#ffd36e 60%,#c80);box-shadow:0 0 34px #fb2;animation-duration:.7s}
+.orb.listen i{border-color:#fb2;border-top-color:transparent}.orb.speak .core{animation-duration:.5s}.orb.speak i{animation-duration:2s}
+@keyframes sp{to{transform:rotate(360deg)}}@keyframes br{50%{transform:scale(1.18);opacity:.75}}
+@media (prefers-reduced-motion:reduce){.orb i,.core{animation:none}}
+.hn{letter-spacing:.2em;font-size:.8rem;color:#5fdcf2}.hmsg{min-height:3em;margin:8px 0;font-size:1.02rem}
+.hrow{display:flex;gap:6px}.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.hlog{margin-top:8px;text-align:left;font-size:.8rem;color:#7aaab4;max-height:110px;overflow:auto}.hlog .a{color:#9fe9f7}
+.urg{color:var(--er);font-weight:600}.ag a{color:var(--ac)}
+</style>
+</head>
+<body>
+<main>
+<h1 id="ttl">ClassAI</h1>
+<p class="sub">Incolla una circolare: una squadra di agenti la legge, la controlla e prepara il messaggio per il gruppo dei genitori. Gratis, senza login, i testi restano sul tuo telefono.</p>
+
+<div class="hud" id="hud"><div class="orb" id="orb"><i></i><i></i><i></i><div class="core"></div></div>
+<div class="hn" id="hn">C L A S S A I</div><div class="hmsg" id="hmsg">Avvio…</div>
+<div class="hrow"><button id="mic">🎙️ Parla</button><input id="cmd" placeholder="…o scrivi: novità, scadenze, aiuto" enterkeyhint="send" aria-label="Comando"><button id="snd" aria-label="Invia">➤</button></div>
+<div class="chips" id="chips"><button>novità</button><button>calendario</button><button>scadenze</button><button>riassumi</button><button>prepara il messaggio</button><button>aiuto</button><button>impostazioni</button></div>
+<div class="hlog" id="hlog"></div></div>
+<div class="card" id="setup"><h2 id="sth">👋 Primo accesso: configura ClassAI</h2><p class="note">Bastano 2 minuti. I dati restano solo sul tuo telefono.</p>
+<div class="row"><div><label for="nm2">Il tuo nome</label><input id="nm2" autocomplete="name"></div><div><label for="rl">Ruolo</label><select id="rl"><option>Rappresentante dei genitori</option><option>Rappresentante degli studenti</option><option>Rappresentante d’istituto</option></select></div></div>
+<div class="row"><div><label for="lv2">Ordine di scuola</label><select id="lv2"><option>Infanzia</option><option>Primaria</option><option>Secondaria di I grado</option><option selected>Secondaria di II grado</option></select></div><div><label for="sch">Scuola</label><select id="sch"></select></div></div>
+<div id="newsc" hidden><div class="row"><div><label for="nsn">Nome della scuola</label><input id="nsn" placeholder="Es. IIS Apicio Colonna Gatti"></div><div><label for="nsu">Sito web della scuola</label><input id="nsu" type="url" placeholder="https://www.…"></div></div></div>
+<div class="row"><div><label for="cls">Classe (es. 3AS)</label><input id="cls" maxlength="5" autocapitalize="characters"></div><div><label for="ind">Indirizzo (es. Operatore socio sanitario)</label><input id="ind"></div></div>
+<label for="ali">Altri modi in cui la scuola nomina la tua classe (facoltativo, separati da virgola)</label><input id="ali" placeholder="Es. 3 A SS, terza A socio sanitario, sede centrale">
+<label for="since">Mostra le comunicazioni dal (facoltativo)</label><input id="since" type="date">
+<div class="btns"><button id="sv">Salva e inizia</button></div><p class="er" id="serr"></p></div>
+<div class="card" id="req" hidden><h2>📨 Attiva il monitoraggio della tua scuola</h2><p class="note">La tua scuola non è ancora nell’elenco. Invia questa richiesta a chi gestisce ClassAI: la aggiungerà in pochi minuti. Intanto puoi incollare le circolari a mano.</p><pre id="snip" style="white-space:pre-wrap;font-size:.8rem"></pre><div class="btns"><button id="cps">Copia</button><button class="sec" id="wps">Invia su WhatsApp</button></div></div>
+<div class="card" id="feed"><h2>📡 Dal sito della scuola</h2><p class="note" id="sinfo"></p><div class="btns" id="tabs"><button class="sec" data-t="mine">Per te</button><button class="sec" data-t="dl">Calendario</button><button class="sec" data-t="all">Tutto</button></div><div id="fl"></div></div>
+<details class="card"><summary>✍️ Bozza manuale (incolla una circolare)</summary>
+<div>
+<div class="row">
+<div><label for="nm">Il tuo nome (rappresentante)</label><input id="nm" placeholder="Es. Mario Rossi" autocomplete="name"></div>
+<div><label for="sc">Scuola</label><input id="sc" placeholder="Es. IIS Apicio Colonna Gatti"></div>
+</div>
+<label for="lv">Ordine di scuola</label>
+<select id="lv"><option>Infanzia</option><option>Primaria</option><option>Secondaria di I grado</option><option selected>Secondaria di II grado</option></select>
+<label for="pdf">Carica la circolare (PDF scaricato dal sito o dal registro)</label>
+<input id="pdf" type="file" accept="application/pdf,.pdf,.txt,text/plain"><p class="note" id="pdfst">Il file viene letto sul tuo telefono: non viene inviato a nessuno.</p>
+<label for="in">…oppure incolla il testo della circolare</label>
+<textarea id="in" placeholder="Incolla qui il testo della circolare…"></textarea>
+<div class="btns"><button id="go">Elabora con gli agenti</button><button class="sec" id="ex">Prova con un esempio</button><button class="sec" id="cl">Pulisci</button></div>
+</div>
+
+</details>
+<div class="card" id="pipe" hidden><h2>La squadra al lavoro</h2><div id="log"></div></div>
+
+<div class="card" id="res" hidden>
+<h2>Messaggio per WhatsApp (modificabile)</h2>
+<textarea id="out"></textarea>
+<div class="btns"><button id="cp">Copia</button><button class="sec" id="wh">Apri in WhatsApp</button><button class="sec" id="rp">⚠ Segnala errore</button></div>
+<p class="note">Rileggi sempre il messaggio con la circolare originale prima di inviarlo: la responsabilità finale è tua.</p>
+</div>
+
+<div class="card" id="vf" hidden><h2>Verifica incrociata</h2><div id="chk"></div></div>
+
+<div class="card">
+<h2>Come si usa e come si diffonde</h2>
+<details open><summary>Rappresentante: installa l’app sul telefono</summary>
+<ul><li><b>iPhone (Safari):</b> Condividi → “Aggiungi alla schermata Home”.</li><li><b>Android (Chrome):</b> menu ⋮ → “Installa app” o “Aggiungi a schermata Home”.</li></ul></details>
+<details><summary>Genitore: non serve installare nulla</summary>
+<p>Riceve il messaggio nella chat di classe. Chi vuole, può aprire il link e aggiungerlo alla Home per leggere da sé una circolare e capirla in semplice italiano.</p></details>
+<details><summary>Per diffonderlo agli altri rappresentanti</summary>
+<ol><li>Condividi il link nel gruppo dei rappresentanti d’istituto.</li><li>Ognuno inserisce il proprio nome: la firma sui suoi messaggi sarà sua, mentre l’idea resta tua.</li><li>Raccogli i feedback e migliora le regole di lettura.</li></ol></details>
+</div>
+<p class="note">ClassAI è un assistente di lettura e impaginazione, non un sostituto della circolare ufficiale.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const EX="Oggetto: Visita didattica Fiera del Gusto\nSi comunica alle SS.LL. che in data 20 novembre 2026 le classi terze e quarte dell’indirizzo Enogastronomia parteciperanno alla visita didattica presso la Fiera del Gusto. Il costo pro-capite è di € 18,00 da saldare a mezzo piattaforma PagoPA entro il 10 novembre 2026. Contestualmente, entro la medesima data, dovrà essere resa sul registro elettronico l’autorizzazione da parte del genitore esercente la responsabilità genitoriale o dello studente se maggiorenne.";
+try{$("nm").value=localStorage.getItem("ca_nm")||"";$("sc").value=localStorage.getItem("ca_sc")||"";$("lv").value=localStorage.getItem("ca_lv")||$("lv").value}catch(e){}
+function title(){const n=$("nm").value.trim();$("ttl").textContent="ClassAI by "+(window.OWNER||n||"[Il tuo nome]");document.title=$("ttl").textContent}
+title();
+["nm","sc","lv"].forEach(i=>$(i).addEventListener("input",()=>{title();try{localStorage.setItem("ca_"+i,$(i).value)}catch(e){}}));
+$("ex").onclick=()=>{$("in").value=EX};
+/* Caricamento PDF: pdf.js caricato solo quando serve, il testo resta sul dispositivo */
+const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+function loadPdfJs(){return window.pdfjsLib?Promise.resolve(window.pdfjsLib):new Promise((ok,ko)=>{const s=document.createElement("script");s.src=PDFJS+"pdf.min.js";
+ s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+"pdf.worker.min.js";ok(window.pdfjsLib)};s.onerror=()=>ko(new Error("Non riesco a caricare il lettore PDF: controlla la connessione."));document.head.append(s)})}
+async function pdfToText(file){const lib=await loadPdfJs(),doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;let out=[];
+ for(let i=1;i<=Math.min(doc.numPages,10);i++){const c=await(await doc.getPage(i)).getTextContent();out.push(c.items.map(x=>x.str+(x.hasEOL?"\n":" ")).join(""))}
+ return out.join("\n").replace(/[ \t]+\n/g,"\n").replace(/[ \t]{2,}/g," ").trim()}
+$("pdf").onchange=async()=>{const f=$("pdf").files[0],st=$("pdfst");if(!f)return;st.className="note";st.textContent="Leggo "+f.name+"…";
+ try{const t=/\.txt$/i.test(f.name)||f.type==="text/plain"?(await f.text()).trim():await pdfToText(f);
+  if(t.replace(/\s/g,"").length<80){st.className="note wa";st.textContent="Il PDF sembra una scansione (immagine senza testo): non riesco a leggerlo. Copia a mano le informazioni principali qui sotto.";return}
+  $("in").value=t;st.className="note ok";st.textContent="✔ Letto "+f.name+" ("+t.split(/\s+/).length+" parole). Preparo la bozza…";$("go").click()}
+ catch(e){st.className="note er";st.textContent="Non riesco a leggere il file: "+(e.message||e)}
+ finally{$("pdf").value=""}};
+$("cl").onclick=()=>{$("in").value="";["pipe","res","vf"].forEach(i=>$(i).hidden=true)};
+
+/* ---------- AGENTI ---------- */
+function lettore(t){const s=t.replace(/^(\s*oggetto\s*:[^\n]*?)[ \t]*$/im,(m,a)=>/[.!?:;]$/.test(a)?a:a+".").replace(/\s+/g," ").trim();return{s,parole:s.split(" ").length}}
+function filtro(s){
+ const staff=(s.match(/collegio (dei )?docenti|personale ata|interpell|ordine di servizio|consiglio di classe (riservato|docenti)|docenti (e|ed) ata|dipartimenti|commissione|supplenz/gi)||[]).length;
+ const par=/genitor|famigli|alunni|student|esercenti|SS\.LL|classi|sciopero|gita|visita|uscita|colloqui|assemblea|pagopa/i.test(s);
+ const cl=s.match(/class[ei]\s+(?:prim[ae]|second[ae]|terz[ae]|quart[ae]|quint[ae]|[1-5]\s?[A-Za-z]?\^?)(?:\s*(?:,|e|ed|\/)\s*(?:prim[ae]|second[ae]|terz[ae]|quart[ae]|quint[ae]|[1-5]\s?[A-Za-z]?\^?))*/i);
+ const ind=s.match(/indirizzo\s+([A-ZÀ-Ú][\wÀ-ú]+(?:\s+[A-ZÀ-Ú][\wÀ-ú'’-]+){0,3})/);
+ let d=[];if(cl)d.push(cl[0].replace(/^classi?/i,"Classi").replace(/\b(prim|second|terz|quart|quint)([ae])\b/gi,(m,a,b)=>({prim:"1",second:"2",terz:"3",quart:"4",quint:"5"}[a.toLowerCase()])+"^"));
+ if(ind)d.push("indirizzo "+ind[1]);
+ 
+ return{soloStaff:staff>=1&&!par||staff>=3,dest:d.length?d.join(", "):"Tutte le famiglie (nessuna restrizione indicata)",restrizioni:d.length>0,hasCl:!!cl,hasInd:!!ind,indTxt:(s.match(/indirizzo\s+([A-ZÀ-Ú][\wÀ-ú'’-]+(?:\s+[\wÀ-ú'’-]+){0,7})/)||[0,""])[1],magg:/maggiorenn/i.test(s)};
+}
+function mkDate(d,m,y,ctx){const now=new Date();if(!y){y=now.getFullYear();if(new Date(y,m-1,d)<new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)&&m<now.getMonth()+1)y++}if(y<100)y+=2000;const dt=new Date(y,m-1,d);const valid=dt.getMonth()===m-1&&dt.getDate()===d;return{dt,valid,ctx,d,m,y}}
+function estrattore(s){s=s.replace(/\b(Prot\.|Circolare)\s*n?[°.]?\s*[\w\/.\-]+(\s+del\s+[\d\/.]+)?/gi,"");
+ const dates=[];let m;
+ const r1=new RegExp("(\\d{1,2})\\s*°?\\s*("+MESI.join("|")+")(?:\\s+(\\d{4}))?","gi");
+ while((m=r1.exec(s)))dates.push({...mkDate(+m[1],MESI.indexOf(m[2].toLowerCase())+1,m[3]?+m[3]:0),pos:m.index});
+ const r2=/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/g;
+ while((m=r2.exec(s)))dates.push({...mkDate(+m[1],+m[2],+m[3]),pos:m.index});
+ dates.sort((a,b)=>a.pos-b.pos);
+ dates.forEach(x=>{const pre=s.slice(Math.max(0,x.pos-45),x.pos);x.scad=/entro|non oltre|scadenza|improrogabil|termine/i.test(pre.split(/[.;]\s/).pop())});
+ const amts=[];const r3=/(?:€|euro)\s?(\d{1,4}(?:[.,]\d{1,2})?)|(\d{1,4}(?:[.,]\d{1,2})?)\s?(?:€|euro)/gi;
+ while((m=r3.exec(s))){const v=(m[1]||m[2]).replace(",",".");const n=parseFloat(v);if(!amts.includes(n))amts.push(n)}
+ const og=s.match(/oggetto\s*:\s*([^.]{3,90})/i);
+ const TOP=[[/visita didattica|uscita didattica|viaggio d.istruzione|gita/i,"Uscita/visita didattica"],[/sciopero/i,"Sciopero"],[/assemblea/i,"Assemblea"],[/elezioni|rinnovo.*(organi|rappresentant)/i,"Elezioni"],[/colloqui|ricevimento/i,"Colloqui con i docenti"],[/vaccin/i,"Documentazione vaccinale"],[/contributo|tassa|quota/i,"Contributo/pagamento"],[/orario/i,"Variazione orario"],[/vacanz|chiusura|sospension/i,"Sospensione attività"],[/consiglio di (classe|interclasse|intersezione)|riunione/i,"Riunione/Consiglio"],[/mensa/i,"Servizio mensa"],[/open day|orientamento/i,"Orientamento"]];
+ const tp=TOP.find(t=>t[0].test(s));
+ let ogg=og?og[1].trim():(s.length<=110?s.replace(/\.$/,""):(tp?tp[1]:s.slice(0,110).replace(/\s+\S*$/,"")+"…"));
+ const luogo=s.match(/presso (?:la |il |l’|l')?([A-ZÀ-Ú][^.,;]{2,50}?)(?=\.|,|;|\s+il\s|\s+per\s|\s+con\s|\s+da\s|$)/);
+ const az=[];const amt=amts.length===1?amts[0].toFixed(2).replace(".",","):null;
+ if(/pagopa/i.test(s))az.push("Effettuare il pagamento"+(amt?" di € "+amt:"")+" tramite *PagoPA*");
+ else if(amts.length&&/versament|pagament|quota|contributo|saldare/i.test(s))az.push("Versare la quota"+(amt?" di € "+amt:"")+" come indicato in circolare");
+ if(/autorizzazion/i.test(s))az.push("Firmare l’autorizzazione sul *registro elettronico*");
+ if(/modulo|modello|tagliando|riconsegn/i.test(s))az.push("Compilare e riconsegnare il modulo");
+ if(/presa visione|libretto web|firmare il libretto/i.test(s))az.push("Firmare per presa visione");
+ if(/iscrizion|prenotazion|iscriversi/i.test(s))az.push("Completare iscrizione/prenotazione");
+ if(/sciopero/i.test(s))az.push("Organizzarsi per possibili variazioni di orario o servizio");
+ if(/pranzo al sacco|munirsi|portare/i.test(s))az.push("Munirsi di quanto richiesto (vedi circolare)");
+ return{dates,amts,ogg,az,luogo:luogo?luogo[1].trim():null,tp:tp&&tp[1]};
+}
+const fd=x=>{const w=x.dt.toLocaleDateString("it-IT",{weekday:"long"});return x.d+" "+MESI[x.m-1]+" "+x.y+" ("+w+")"};
+function verificatore(f,e,s){
+ const k=[];const oggi=new Date();oggi.setHours(0,0,0,0);
+ const sc=e.dates.filter(x=>x.scad),ev=e.dates.filter(x=>!x.scad);
+ e.dates.forEach(x=>{if(!x.valid)k.push(["er","Data non valida nel testo: "+x.d+"/"+x.m+"/"+x.y+". Controlla l’originale."]);else{k.push(["ok","Data trovata: "+fd(x)+(x.scad?" · scadenza":" · evento")]);if(x.dt<oggi)k.push(["wa","La data "+fd(x)+" è già passata."]);if(x.dt.getDay()===0)k.push(["wa","La data "+fd(x)+" cade di domenica: verifica."])}});
+ if(sc.length&&ev.length&&sc.some(a=>ev.some(b=>a.valid&&b.valid&&a.dt>b.dt)))k.push(["wa","Una scadenza è successiva alla data dell’evento: controlla."]);
+ if(e.az.length&&!sc.length)k.push(["wa","Ci sono azioni da svolgere ma non trovo una scadenza esplicita."]);
+ if(e.amts.length>1)k.push(["wa","Trovati più importi ("+e.amts.map(a=>"€ "+a).join(", ")+"): ho omesso la cifra dalle azioni, scegli tu."]);
+ else if(e.amts.length===1)k.push(["ok","Importo trovato: € "+e.amts[0].toFixed(2).replace(".",",")]);
+ if(e.amts.length&&!/pagopa|bonifico|contant|bollettino|registro/i.test(s))k.push(["wa","C’è un importo ma non trovo la modalità di pagamento."]);
+ if(!e.dates.length)k.push(["wa","Nessuna data trovata nel testo."]);
+ if(f.restrizioni)k.push(["wa","Il messaggio è per destinatari specifici: invialo solo alle classi interessate."]);
+ k.push(["ok","Tutti i dati sopra sono stati ritrovati parola per parola nel testo incollato (nessun dato inventato)."]);
+ return k;
+}
+const RXD=new RegExp("\\d{1,2}\\s*°?\\s*("+MESI.join("|")+")|\\d{1,2}[\\/.]\\d{1,2}[\\/.]\\d{2,4}","i");
+function semp(x){let r=x.replace(/^(Con la presente\s+)?(Si|si)\s+(comunica|informa|avvisa|ricorda|rende noto|porta a conoscenza)(\s+(alle SSLL|ai genitori|agli studenti|a tutti|alle famiglie))?(\s+che)?,?\s*/,"")
+ .replace(/\balle SSLL\b/gi,"ai genitori").replace(/\bSSLL\b/g,"voi")
+ .replace(/a mezzo( di)?/gi,"tramite").replace(/pro[- ]capite/gi,"a testa").replace(/,?\s*esercente la (responsabilità|potestà) genitoriale/gi,"")
+ .replace(/entro e non oltre/gi,"entro").replace(/\bcontestualmente\b/gi,"inoltre").replace(/\bin data (?=\d)/gi,"il ")
+ .replace(/\bnonché\b/gi,"e").replace(/\baltresì\b/gi,"anche").replace(/\bpertanto\b/gi,"quindi").replace(/\bsono tenuti a\b/gi,"devono")
+ .replace(/\bda saldare\b/gi,"da pagare").replace(/\bsaldare\b/gi,"pagare").replace(/\s+/g," ").trim();
+ if(!r)return"";r=r[0].toUpperCase()+r.slice(1);if(r.length>280)r=r.slice(0,280).replace(/\s+\S*$/,"")+"…";
+ return /[.!?…]$/.test(r)?r:r+"."}
+function sunto(s){
+ let t=s.replace(/\bProt\.\s*n?[°.]?\s*[\w\/.\-]+(\s+del\s+[\d\/.]+)?/gi,"").replace(/Circolare\s+n[°.]?\s*\d+(\/\d+)?/gi,"").replace(/Oggetto\s*:[^.]*\./i,"")
+  .replace(/(Il |La )?Dirigente Scolastic[oa]\b[^.]{0,60}$/i,"").replace(/firmato digitalmente.*$/i,"")
+  .replace(/SS\.\s?LL\./g,"SSLL").replace(/\ba\.\s?s\./gi,"a§s§").replace(/\b(art|n|prot|cfr|ecc|sig|dott|prof)\./gi,"$1§");
+ const S=t.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ú0-9])/).map(x=>x.replace(/§/g,".").trim().replace(/^(visto|vista|visti|considerato|tenuto conto|sentito|ai sensi|richiamat|preso atto)[^]*?,\s*(?=(con la presente\s+)?si\s+(comunica|informa|avvisa|ricorda|dispone|rende noto|porta a conoscenza))/i,"")).filter(x=>x.length>25&&!(/^(Ai|Agli|Alle|Al|Alla)\s/.test(x)&&x.length<140));
+ const BAD=/^(visto|vista|visti|considerato|tenuto conto|sentito|ai sensi|richiamat|preso atto)/i,END=/cordiali saluti|distinti saluti|si ringrazia|si confida|certi della|buon lavoro/i;
+ const ACT=/entro|dovr|devono|è necessario|occorre|si invit|sono invitat|consegnar|versar|firmar|compilar|iscriv|prenot|portare|munirs|autorizz|pagament/i;
+ const TOP=/gita|visita|uscita|viaggio|sciopero|assemblea|colloqui|elezion|iscrizion|contribut|quota|orario|vacanz|sospension|mensa|pagopa|registro|scrutini|esami|open day/i;
+ const c=S.filter(x=>!BAD.test(x)&&!END.test(x)).map((x,i)=>({x,i,p:(RXD.test(x)?3:0)+(/€|euro/i.test(x)?3:0)+(ACT.test(x)?2:0)+(TOP.test(x)?2:0)+(i<2?1:0)-(x.length>320?2:0)}));
+ return c.sort((a,b)=>b.p-a.p).slice(0,3).sort((a,b)=>a.i-b.i).map(o=>semp(o.x)).filter(Boolean)}
+
+function redattore(f,e,s){
+ const sc=e.dates.find(x=>x.scad&&x.valid),ev=e.dates.filter(x=>!x.scad&&x.valid);
+ const nm=$("nm").value.trim()||"[Il tuo nome]",sch=$("sc").value.trim();
+ const L=[];
+ L.push("🏫 *COMUNICAZIONE SCUOLA"+(sch?" – "+sch.toUpperCase():"")+"*");
+ L.push("📌 *Oggetto:* "+e.ogg);
+ L.push("👥 *Destinatari:* "+f.dest);
+ const sn=window.AIS&&window.AIS.testo?[window.AIS.testo]:(s?sunto(s):[]);const sj=sn.join(" "),nz=x=>x.toLowerCase().replace(/[^a-z0-9à-ú]/g,"");
+ if(sn.length&&!nz(e.ogg).includes(nz(sj).slice(0,60))){L.push("");L.push("📝 *In breve:* "+sj)}
+ const info=[];
+ ev.forEach(x=>info.push("Data: *"+fd(x)+"*"));
+ if(e.luogo)info.push("Luogo: "+e.luogo);
+ if(e.amts.length)info.push("Costo: "+e.amts.map(a=>"€ "+a.toFixed(2).replace(".",",")).join(" / "));
+ if(info.length){L.push("");L.push("ℹ️ *Cosa c’è da sapere:*");info.forEach(i=>L.push("• "+i))}
+ if(e.az.length||sc){L.push("");L.push("⏰ *"+(sc?"SCADENZA: entro il "+fd(sc):"AZIONI RICHIESTE")+"*");e.az.forEach((a,i)=>L.push((i+1)+". "+a+(f.magg&&/autorizzazione/.test(a)?" (gli studenti maggiorenni possono firmare da soli)":"")))}
+ L.push("");L.push(window.CURURL?"🔗 Circolare ufficiale (dettagli completi): "+window.CURURL:"🔗 Documento ufficiale: consultare la circolare sul sito/registro.");
+ L.push("");L.push("💡 _ClassAI by "+(window.OWNER||nm)+(window.OWNER&&$("nm").value.trim()?" · "+nm:"")+"_");
+ return L.join("\n");
+}
+/* ---------- UI ---------- */
+function row(ico,t,d,c){const el=document.createElement("div");el.className="ag";const i=document.createElement("div");i.textContent=ico;const w=document.createElement("div");const b=document.createElement("b");b.textContent=t;if(c)b.className=c;const sp=document.createElement("span");sp.textContent=d;w.append(b,sp);el.append(i,w);$("log").append(el)}
+let forza=false;
+$("go").onclick=()=>{
+ const raw=$("in").value;if(raw.trim().length<30){alert("Incolla il testo di una circolare (almeno qualche frase).");return}
+ $("log").textContent="";$("pipe").hidden=false;$("res").hidden=true;$("vf").hidden=true;
+ const l=lettore(raw);row("📖","Agente Lettore","Normalizzato il testo: "+l.parole+" parole.");
+ const f=filtro(l.s);
+ if(f.soloStaff&&!forza){row("🛑","Agente Filtro","Sembra una circolare per il solo personale scolastico: di norma NON va inviata ai genitori.","wa");const b=document.createElement("button");b.className="sec";b.textContent="Genera comunque";b.onclick=()=>{forza=true;$("go").click();forza=false};$("log").append(b);return}
+ row("🧭","Agente Filtro","Destinatari: "+f.dest+".");
+ const e=estrattore(l.s);
+ row("🔎","Agente Estrattore",e.dates.length+" date, "+e.amts.length+" importi, "+e.az.length+" azioni"+(e.tp?" · tema: "+e.tp:"")+".");
+ const k=verificatore(f,e,l.s);const nw=k.filter(x=>x[0]!=="ok").length;
+ row("✅","Agente Verificatore",nw?nw+" punti da controllare (vedi sotto).":"Nessuna anomalia rilevata.",nw?"wa":"ok");
+ window.AIS?row("🧠","Agente Sintetizzatore AI","Sunto scritto dall’AI e verificato ("+(window.AIS.controllo==="doppio"?"regole + secondo controllo AI":"regole")+"): ogni data, ora, importo e classe è nel testo originale.","ok"):row("🧠","Agente Sintetizzatore","Sunto in italiano semplice: "+sunto(l.s).length+" frasi chiave, senza burocratese.");
+ row("✍️","Agente Redattore","Bozza WhatsApp pronta, con la tua firma.");
+ $("out").value=redattore(f,e,l.s);$("res").hidden=false;
+ $("chk").textContent="";k.forEach(x=>{const d=document.createElement("div");d.className="chk "+x[0];d.textContent=(x[0]==="ok"?"✔ ":x[0]==="wa"?"⚠ ":"✖ ")+x[1];$("chk").append(d)});$("vf").hidden=false;
+ $("res").scrollIntoView({behavior:"smooth"});
+};
+$("cp").onclick=async()=>{try{await navigator.clipboard.writeText($("out").value);$("cp").textContent="Copiato ✔"}catch(e){$("out").select();document.execCommand("copy");$("cp").textContent="Copiato ✔"}setTimeout(()=>$("cp").textContent="Copia",1800)};
+$("wh").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent($("out").value),"_blank","noopener");
+
+/*PURE*/
+const ANN={1:"prim[ae]",2:"second[ae]",3:"terz[ae]",4:"quart[ae]",5:"quint[ae]"};
+const GEN=["oper","tecn","indi","serv","scuo","corso"];
+const stems=x=>(x||"").toLowerCase().replace(/[^a-zà-ú\s]/g," ").split(/\s+/).filter(w=>w.length>3&&!GEN.includes(w.slice(0,4))).map(w=>w.slice(0,4));
+function sameInd(a,b){const A=stems(a),B=stems(b);if(!B.length)return true;return A.some(x=>B.includes(x))}
+function rilevanza(text,cls,ind){
+ const t=lettore(text).s,f=filtro(t);
+ if(f.soloStaff)return{ok:false,why:"Probabile solo personale"};
+ let ok=true,why="Per tutte le famiglie";
+ const m=(cls||"").trim().toUpperCase().replace(/[\s^°]/g,"").match(/^([1-5])([A-Z]{1,3})?$/);
+ const al=(window.ALI||"").split(",").map(x=>x.trim().toLowerCase()).filter(x=>x.length>2);
+ if(f.hasCl){
+  if(m){const y=m[1];let hit=al.some(a=>t.toLowerCase().includes(a)),mm;const re=new RegExp("class[ei]?[^.]{0,40}\\b"+ANN[y]+"\\b","gi");
+   while(!hit&&(mm=re.exec(t))){if(!/^\s+[A-Z]\b/.test(t.slice(mm.index+mm[0].length))){hit=true}}
+   if(!hit&&m[2])hit=new RegExp("(?<![A-Za-z0-9])"+y+"\\s?\\^?°?\\s?"+m[2]+"(?![A-Za-z0-9])","i").test(t);
+   if(!hit&&!m[2])hit=new RegExp("class[ei]?[^.]{0,40}(?<![0-9])"+y+"(?![0-9])","i").test(t);
+   ok=hit;why=hit?"Riguarda la tua classe":"Destinatari specifici, non la tua classe"}
+  else why="Destinatari specifici: imposta la tua classe per filtrare"}
+ else if(f.restrizioni)why="Destinatari specifici";
+ if(ok&&ind&&f.hasInd&&f.indTxt){if(sameInd(f.indTxt,ind)){if(!f.hasCl)why="Riguarda il tuo indirizzo"}else{ok=false;why="Riguarda un altro indirizzo"}}
+ return{ok,why}}
+const ofFam=tip=>!tip||!tip.length||tip.some(x=>/famigli|alunni/i.test(x));
+function agenda(items,cls,ind){const o=[],g=new Date();g.setHours(0,0,0,0);
+ items.forEach(it=>{if(!it.text||!ofFam(it.tip)||!rilevanza(it.text,cls,ind).ok)return;const seen={};
+  estrattore(lettore(it.text).s).dates.filter(x=>x.valid&&x.dt>=g).forEach(x=>{const k=+x.dt;if(seen[k])return;seen[k]=1;const dd=Math.round((x.dt-g)/864e5);if(dd<=150)o.push({it,x,dd,k:x.scad?"scad":"ev"})})});
+ return o.sort((a,b)=>a.x.dt-b.x.dt)}
+const scadenze=(items,cls,ind)=>agenda(items,cls,ind).filter(z=>z.k==="scad");
+function collega(items){const sw=/rettific|integrazion|annull|sostitu|aggiornament/i,STP=["rettifica","integrazione","comunicazione","annullamento","aggiornamento","sostituzione"];
+ const tk=t=>new Set(t.replace(/Comunicazione n\.\s*\d+:?/i,"").toLowerCase().replace(/[^a-zà-ú\s]/g," ").split(/\s+/).filter(w=>w.length>3&&!STP.some(x=>x.startsWith(w.slice(0,5)))).map(w=>w.slice(0,5)));
+ const dre=new RegExp("\\d{1,2}\\s+(?:"+MESI.join("|")+")\\s+\\d{4}","i");
+ items.forEach(a=>{if(!sw.test(a.title))return;const ta=tk(a.title),dm=(a.title.match(dre)||[""])[0];let best=null,bs=0;
+  items.forEach(b=>{if(b===a||(b.pub||"")>(a.pub||""))return;const sc=[...tk(b.title)].filter(w=>ta.has(w)).length+(dm&&b.title.includes(dm)?2:0);if(sc>bs){bs=sc;best=b}});
+  if(best&&bs>=5){a.rettDi={id:best.id,title:best.title};best.sostDa={id:a.id,title:a.title}}})}
+/*ENDPURE*/
+let D={items:[]},CUR=[],CI=0,TAB="mine",voiceOn=true;window.OWNER="";
+const relev=it=>{if(!ofFam(it.tip))return{ok:false,why:"Solo personale ("+it.tip.join(", ")+")"};const r=rilevanza(it.text||"",$("cls").value,$("ind").value);if(r.ok&&it.tip&&it.tip.length&&r.why==="Per tutte le famiglie")r.why="Per "+it.tip.filter(x=>x!=="Tutto il personale").join(", ");return r};
+const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k)||"";localStorage.setItem(k,v)}catch(e){return ""}};
+const clean=t=>t.replace(/[*_]/g,"").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu,"");
+function log(t,c){const d=document.createElement("div");d.textContent=t;d.className=c||"";$("hlog").prepend(d);while($("hlog").children.length>6)$("hlog").lastChild.remove()}
+function say(t){log("ClassAI: "+t,"a");$("hmsg").textContent=t;
+ if(!voiceOn||!("speechSynthesis" in window))return;speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(clean(t));u.lang="it-IT";const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("it"));if(v)u.voice=v;
+ u.onstart=()=>{$("orb").className="orb speak"};u.onend=()=>{$("orb").className="orb"};speechSynthesis.speak(u)}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
+$("mic").onclick=()=>{if(!SR){say("Su questo browser non posso ascoltarti: scrivimi i comandi qui sotto. Su Chrome e Safari la voce funziona.");return}
+ if(rec){rec.stop();return}
+ rec=new SR();rec.lang="it-IT";rec.interimResults=false;
+ rec.onstart=()=>{$("orb").className="orb listen";$("mic").textContent="⏹ Ti ascolto…"};
+ rec.onend=()=>{rec=null;$("orb").className="orb";$("mic").textContent="🎙️ Parla"};
+ rec.onerror=()=>{};rec.onresult=e=>handle(e.results[0][0].transcript);
+ if("speechSynthesis" in window)speechSynthesis.cancel();rec.start()};
+$("snd").onclick=()=>{const v=$("cmd").value.trim();if(v){$("cmd").value="";handle(v)}};
+$("cmd").addEventListener("keydown",e=>{if(e.key==="Enter")$("snd").click()});
+$("chips").onclick=e=>{if(e.target.tagName==="BUTTON")handle(e.target.textContent)};
+function mine(){return(D.items||[]).map(it=>({it,r:relev(it)})).filter(x=>x.r.ok||!x.it.text)}
+const sumr=it=>{const t=lettore(it.text).s,f=filtro(t),e=estrattore(t),sc=e.dates.find(x=>x.scad&&x.valid);
+ return (it.sostDa?"Attenzione: è stata aggiornata da un’altra comunicazione. ":"")+(it.rettDi?"È una rettifica. ":"")+it.title+". "+(it.sunto&&it.sunto.testo?it.sunto.testo:sunto(t).join(" "))+" Destinatari: "+f.dest+"."+(sc?" Scadenza: "+fd(sc)+".":"")+(e.az.length?" Da fare: "+e.az.join("; ")+".":"")};
+function nuovi(){const l=ls("ca_last");return CUR.filter(x=>x.it.found>l)}
+function greet(){const h=new Date().getHours(),g=h<12?"Buongiorno":h<18?"Buon pomeriggio":"Buonasera",n=$("nm").value.trim();
+ const sd=scadenze(D.items||[],$("cls").value,$("ind").value),nv=nuovi().length;
+ let m=g+(n?", "+n:"")+". ";
+ m+=!(D.items||[]).length?"Non ho ancora letto il sito: attendo il primo controllo automatico.":nv?"Ci sono "+nv+" comunicazioni nuove per te.":"Nessuna novità dall’ultima volta.";
+ if(sd.length){const s=sd[0];m+=" Prossima scadenza: "+s.it.title.slice(0,60)+", "+(s.dd===0?"oggi":s.dd===1?"domani":"tra "+s.dd+" giorni")+"."}
+ $("hmsg").textContent=m;$("hmsg").className="hmsg"+(sd.length&&sd[0].dd<=3?" urg":"");log("ClassAI: "+m,"a")}
+function card(x){const it=x.it,el=document.createElement("div");el.className="ag";
+ const b=document.createElement("div"),w=document.createElement("div"),h=document.createElement("b"),sp=document.createElement("span"),bt=document.createElement("div");
+ const unr=it.found>ls("ca_last");b.textContent=!it.text?"❓":x.r.ok?"📣":"🚫";h.textContent=(unr?"● ":"")+it.title;
+ sp.textContent=(it.text?x.r.why+" — "+(it.sunto&&it.sunto.testo||sunto(lettore(it.text).s)[0]||"").slice(0,160):"Testo non leggibile (scansione): apri l’originale")+" · "+(it.type==="pdf"?"PDF":"pagina")+(it.status==="ocr"?" (letto con OCR: ricontrolla)":"")+(it.status==="titolo"?" · solo titolo: apri l’originale per i dettagli":"")+(it.sunto?" · 🤖✓ sunto verificato":"")+(it.rettDi?" · 🔁 rettifica di "+it.rettDi.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+(it.sostDa?" · ⚠ aggiornata da "+it.sostDa.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+" · "+it.found;
+ bt.className="btns";const a=document.createElement("a");a.href=/^https?:\/\//i.test(it.url||"")?it.url:"#";a.target="_blank";a.rel="noopener";a.textContent="Originale";bt.append(a);
+ if(it.text){const g=document.createElement("button");g.textContent="Prepara messaggio";g.onclick=()=>prep(it);bt.append(g)}
+ w.append(h,sp,bt);el.append(b,w);return el}
+function render(){CUR=mine().filter(x=>x.it.text&&x.r.ok);const f=$("fl");f.textContent="";
+ document.querySelectorAll("#tabs button").forEach(b=>b.style.outline=b.dataset.t===TAB?"2px solid var(--ac)":"none");
+ $("sinfo").textContent=D.updated?"Ultimo controllo del sito: "+D.updated+(D.errors&&D.errors.length?" · ⚠ sito non raggiungibile":"")+" · "+(D.pages||0)+" pagine lette"+(D.dl_fail?" · "+D.dl_fail+" allegati non scaricabili (il sito li blocca): apri l’originale":""):"";
+ if(TAB==="dl"){f.prepend(calbox());const s=agenda(D.items||[],$("cls").value,$("ind").value);if(!s.length)f.append(Object.assign(document.createElement("p"),{textContent:"Nessun evento o scadenza in arrivo."}));
+  s.forEach(z=>{const el=card({it:z.it,r:{ok:true,why:""}});el.querySelector("b").textContent=(z.k==="scad"?"⏰ ":"📅 ")+fd(z.x)+" · "+(z.dd===0?"OGGI":"tra "+z.dd+" gg");el.querySelector("span").textContent=z.it.title;
+   const p=n=>String(n).padStart(2,"0"),d=z.x.dt,ds=d.getFullYear()+p(d.getMonth()+1)+p(d.getDate());
+   const c=document.createElement("a");c.textContent="📅 Calendario";c.download="scadenza.ics";c.href="data:text/calendar;charset=utf-8,"+encodeURIComponent("BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:"+z.it.id+ds+"@classai\nDTSTAMP:"+ds+"T000000Z\nDTSTART;VALUE=DATE:"+ds+"\nSUMMARY:Scadenza - "+z.it.title.replace(/[,;\n]/g," ")+"\nEND:VEVENT\nEND:VCALENDAR");el.querySelector(".btns").append(c);f.append(el)});return}
+ const L=(TAB==="all"?(D.items||[]).map(it=>({it,r:relev(it)})):mine()).slice(0,40);
+ if(!L.length)f.textContent="Nessuna comunicazione trovata.";L.forEach(x=>f.append(card(x)))}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.t;render()});
+function prep(it){const sv=ls("ca_last");$("in").value=it.text;window.AIS=it.sunto&&it.sunto.verificato?it.sunto:null;window.CURURL=/^https?:\/\//i.test(it.url||"")?it.url:"";$("go").click();window.AIS=null;window.CURURL="";CUR.forEach(()=>0);
+ if($("res").hidden){say("Questa sembra una comunicazione solo per il personale: di solito non va inviata ai genitori.");return false}
+ $("hmsg").textContent="Bozza pronta nella sezione sotto.";return true}
+function handle(q0){const q=q0.toLowerCase();log("Tu: "+q0,"u");
+ const cur=()=>CUR[CI]&&CUR[CI].it;
+ if(/impostaz|configur|cambia/.test(q)){$("setup").hidden=false;$("sth").textContent="⚙️ Impostazioni";$("setup").scrollIntoView({behavior:"smooth"});return say("Ecco le impostazioni: cambia scuola, classe o indirizzo e salva.")}
+ if(/aiuto|comandi|cosa sai/.test(q))return say("Puoi dirmi: novità, scadenze, prossima, riassumi, prepara il messaggio, copia, apri whatsapp, aggiorna, silenzio.");
+ if(/chi sei|come ti chiami/.test(q))return say("Sono ClassAI"+(OWNER?", creato da "+OWNER:"")+". Leggo tutto il sito della scuola e ti preparo i messaggi per i genitori.");
+ if(/silenzio|muto|zitto/.test(q)){voiceOn=false;speechSynthesis.cancel();return say("Va bene, resto in silenzio.")}
+ if(/parla|voce/.test(q)&&!/prepara/.test(q)){voiceOn=true;return say("Ok, torno a parlare.")}
+ if(/calendario|agenda|event|settimana|prossimi giorni/.test(q)){const s=agenda(D.items||[],$("cls").value,$("ind").value).filter(z=>z.dd<=14).slice(0,4);if(!s.length)return say("Non vedo eventi o scadenze nei prossimi 14 giorni.");
+  return say("Nei prossimi giorni: "+s.map(z=>(z.k==="scad"?"scadenza ":"")+fd(z.x)+", "+z.it.title.replace(/^Comunicazione n\. \d+: /,"").slice(0,60)).join("; ")+".")}
+ if(/scadenz|scade/.test(q)){const s=scadenze(D.items||[],$("cls").value,$("ind").value).slice(0,3);if(!s.length)return say("Non vedo scadenze future per te.");
+  return say("Le prossime scadenze: "+s.map(z=>fd(z.x)+", "+z.it.title.slice(0,70)).join("; ")+".")}
+ if(/novit|nuov|cosa c|aggiorn|controlla/.test(q)){if(/aggiorn|controlla/.test(q)){load();return}
+  CI=0;const n=nuovi(),L=n.length?n:CUR.slice(0,3);if(!L.length)return say("Per ora non ci sono comunicazioni per te.");
+  return say((n.length?"Hai "+n.length+" novità. ":"Nessuna novità, ecco le ultime. ")+L.slice(0,3).map(x=>x.it.title.slice(0,70)).join("; ")+". Di’ riassumi per i dettagli della prima.")}
+ if(/prossim|avanti|successiv/.test(q)){CI=Math.min(CI+1,CUR.length-1);return cur()?say(sumr(cur())):say("Non ho altre comunicazioni.")}
+ if(/riassum|leggi|dettagli|dimmi/.test(q))return cur()?say(sumr(cur())):say("Non ho comunicazioni da leggere.");
+ if(/prepara|messaggio|bozza/.test(q)){if(!cur())return say("Non ho comunicazioni per te da trasformare in messaggio.");
+  if(prep(cur()))say("Bozza pronta. "+sumr(cur())+" Di’ copia per copiarla o apri WhatsApp per inviarla. Rileggila prima.");return}
+ if(/copia/.test(q)){if($("res").hidden)return say("Prima preparo un messaggio: di’ prepara il messaggio.");$("cp").click();return say("Copiato. Incollalo nel gruppo.")}
+ if(/whatsapp|invia|manda/.test(q)){if($("res").hidden)return say("Prima preparo un messaggio.");$("wh").click();return say("Apro WhatsApp: scegli il gruppo e controlla il testo.")}
+ if(/grazie/.test(q))return say("Prego"+($("nm").value?", "+$("nm").value:"")+". Sono qui quando serve.");
+ say("Non ho capito. Di’ aiuto per l’elenco dei comandi.")}
+let SS={owner:"",schools:[]};
+const done=()=>ls("ca_done")==="1";
+function showApp(){const d=done();$("hud").hidden=!d;$("feed").hidden=!d;$("setup").hidden=d}
+function req(n){if(!n||!n.name){$("req").hidden=true;return}
+ const id=n.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,30);
+ const snip=JSON.stringify({id,name:n.name,url:n.url,max_pages:150,depth:3,since:ls("ca_since")||undefined},null,1);
+ $("snip").textContent=snip;$("req").hidden=false;
+ $("cps").onclick=()=>{try{navigator.clipboard.writeText(snip)}catch(e){}};
+ $("wps").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent("Ciao! Puoi aggiungere la mia scuola a ClassAI? Classe "+ls("ca_cls")+(ls("ca_ind")?" – "+ls("ca_ind"):"")+"\n"+snip),"_blank","noopener")}
+async function load(){const sid=ls("ca_sch"),s=SS.schools.find(x=>x.id===sid);window.ALI=ls("ca_ali");
+ if(sid==="__new"||!s){let n={};try{n=JSON.parse(ls("ca_newsc")||"{}")}catch(e){}D={items:[]};$("sc").value=n.name||"";ls("ca_sc",$("sc").value);req(n);render();greet();
+  $("hmsg").textContent="La tua scuola non è ancora monitorata: invia la richiesta qui sotto a chi gestisce ClassAI.";return}
+ $("req").hidden=true;$("sc").value=s.name;ls("ca_sc",s.name);
+ try{D=await (await fetch("data/"+s.id+".json",{cache:"no-cache"})).json()}catch(e){D={items:[]}}
+ const sn=ls("ca_since");if(sn)D.items=(D.items||[]).filter(it=>{const d=(it.pub||it.found||"").slice(0,10);return!d||d>=sn});collega(D.items||[]);
+ render();greet();ls("ca_last",new Date().toISOString().slice(0,10)+" 00:00")}
+function save(){const nm=$("nm2").value.trim(),cls=$("cls").value.trim().toUpperCase(),sid=$("sch").value,e=$("serr");
+ if(!nm){e.textContent="Scrivi il tuo nome.";return}
+ if(!/^[1-5][A-Z]{0,3}$/.test(cls.replace(/[\s^°]/g,""))){e.textContent="Classe non valida: usa ad esempio 3AS.";return}
+ const nn=$("nsn").value.trim(),nu=$("nsu").value.trim();
+ if(sid==="__new"&&(!nn||!/^https?:\/\/[^\s.]+\.[^\s]+$/.test(nu))){e.textContent="Inserisci nome e sito della scuola (con https://).";return}
+ e.textContent="";ls("ca_nm",nm);$("nm").value=nm;ls("ca_role",$("rl").value);ls("ca_lv",$("lv2").value);$("lv").value=$("lv2").value;
+ ls("ca_cls",cls);ls("ca_ind",$("ind").value.trim());ls("ca_ali",$("ali").value.trim());ls("ca_since",$("since").value);ls("ca_sch",sid);
+ if(sid==="__new")ls("ca_newsc",JSON.stringify({name:nn,url:nu}));
+ ls("ca_done","1");title();showApp();load()}
+$("rp").onclick=()=>{const t="ClassAI – segnalazione\nScuola: "+$("sc").value+"\nClasse: "+ls("ca_cls")+" "+ls("ca_ind")+"\n\nTesto circolare:\n"+$("in").value.slice(0,1200)+"\n\nBozza:\n"+$("out").value+"\n\nCosa non va: ";
+ if(SS.repo)window.open("https://github.com/"+SS.repo+"/issues/new?title="+encodeURIComponent("Segnalazione ClassAI")+"&body="+encodeURIComponent(t.slice(0,1800)),"_blank","noopener");
+ else if(SS.contact&&SS.contact.whatsapp)window.open("https://wa.me/"+SS.contact.whatsapp+"?text="+encodeURIComponent(t),"_blank","noopener");
+ else{try{navigator.clipboard.writeText(t)}catch(e){}say("Segnalazione copiata: incollala a chi gestisce ClassAI e scrivi cosa non va.")}};
+let PR={};
+function calbox(){const sid=ls("ca_sch"),cls=ls("ca_cls").toUpperCase(),p=(PR[sid]||[]).find(x=>x.classe===cls),el=document.createElement("div");el.className="ag";
+ const ic=document.createElement("div"),w=document.createElement("div"),b=document.createElement("b"),bt=document.createElement("div");ic.textContent="📲";bt.className="btns";
+ const mk=(t,c,fn)=>{const x=document.createElement("button");x.textContent=t;if(c)x.className=c;x.onclick=()=>fn(x);return x};
+ if(p){b.textContent="Calendario e notifiche della "+cls;const u=new URL(p.ics,location.href).href;
+  const a=document.createElement("a");a.href=u.replace(/^https?/,"webcal");a.textContent="Iscriviti al calendario";
+  const n=document.createElement("a");n.href="https://ntfy.sh/"+p.ntfy;n.target="_blank";n.rel="noopener";n.textContent="Notifiche: app ntfy, canale "+p.ntfy;
+  bt.append(a,mk("Copia link (Google Calendar)","sec",x=>{try{navigator.clipboard.writeText(u)}catch(e){}x.textContent="Copiato ✔"}),n)}
+ else{b.textContent="Calendario e notifiche per "+(cls||"la tua classe")+": non ancora attivi";
+  bt.append(mk("Richiedi l’attivazione","",x=>{const sn=JSON.stringify({classe:cls,indirizzo:ls("ca_ind"),alias:(ls("ca_ali")||"").split(",").map(y=>y.trim()).filter(Boolean)});
+   try{navigator.clipboard.writeText(sn)}catch(e){}window.open("https://wa.me/"+((SS.contact&&SS.contact.whatsapp)||"")+"?text="+encodeURIComponent("Ciao! Puoi attivare calendario e promemoria ClassAI per la mia classe? Da aggiungere in config.json (digest):\n"+sn),"_blank","noopener")}))}
+ w.append(b,bt);el.append(ic,w);return el}
+async function boot(){try{SS=await (await fetch("data/schools.json",{cache:"no-cache"})).json()}catch(e){}
+ OWNER=window.OWNER=SS.owner||"";title();try{PR=await (await fetch("data/profiles.json",{cache:"no-cache"})).json()}catch(e){}
+ SS.schools.forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.name;$("sch").append(o)});
+ const o=document.createElement("option");o.value="__new";o.textContent="➕ La mia scuola non è in elenco";$("sch").append(o);
+ const sv=ls("ca_sch");if(sv&&[...$("sch").options].some(x=>x.value===sv))$("sch").value=sv;
+ $("nm2").value=ls("ca_nm");$("lv2").value=ls("ca_lv")||$("lv2").value;$("rl").value=ls("ca_role")||$("rl").value;
+ $("cls").value=ls("ca_cls");$("ind").value=ls("ca_ind");$("ali").value=ls("ca_ali");$("since").value=ls("ca_since");
+ $("sch").onchange=()=>{$("newsc").hidden=$("sch").value!=="__new"};$("sch").onchange();$("sv").onclick=save;
+ showApp();if(done())await load()}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+boot();
+</script>
+</body>
+</html>
