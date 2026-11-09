@@ -23,6 +23,9 @@ textarea{min-height:150px;resize:vertical}
 button{font:inherit;border:0;border-radius:10px;padding:11px 16px;background:var(--ac);color:#fff;cursor:pointer;font-weight:600}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#06201a}}
 button.sec{background:var(--ac2);color:var(--ac)}
+a.btnl{display:inline-block;border-radius:10px;padding:11px 16px;background:var(--ac);color:#fff;font-weight:600;text-decoration:none}
+#quick .btns button,#quick a.btnl{flex:1 1 200px;text-align:center;font-size:1.05rem;padding:14px 16px}
+body.drag main{outline:3px dashed var(--ac);outline-offset:-6px}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .ag{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--bd)}
 .ag:first-child{border-top:0}.ag b{display:block}.ag span{color:var(--mu);font-size:.9rem;word-break:break-word}
@@ -59,8 +62,13 @@ ol,ul{padding-left:20px;margin:6px 0}
 <div class="hud" id="hud"><div class="orb" id="orb"><i></i><i></i><i></i><div class="core"></div></div>
 <div class="hn" id="hn">C L A S S A I</div><div class="hmsg" id="hmsg">Avvio…</div>
 <div class="hrow"><button id="mic">🎙️ Parla</button><input id="cmd" placeholder="…o scrivi: novità, scadenze, aiuto" enterkeyhint="send" aria-label="Comando"><button id="snd" aria-label="Invia">➤</button></div>
-<div class="chips" id="chips"><button>novità</button><button>calendario</button><button>scadenze</button><button>riassumi</button><button>prepara il messaggio</button><button>aiuto</button><button>impostazioni</button></div>
+<div class="chips" id="chips"><button>novità</button><button>calendario</button><button>scadenze</button><button>riassumi</button><button>prepara il messaggio</button><button>📄 carica circolare</button><button>aiuto</button><button>impostazioni</button></div>
 <div class="hlog" id="hlog"></div></div>
+<div class="card" id="quick" hidden style="border:2px solid var(--ac)">
+<h2 id="qh">📄 Carica la circolare</h2><p class="note" id="qt"></p>
+<div class="btns"><a id="qopen" class="btnl" target="_blank" rel="noopener">① Apri la circolare</a><button id="qpick">② Carica il PDF scaricato</button><button class="sec" id="qx">Chiudi</button></div>
+<p class="note" id="qst">Più veloce su Android: apri il PDF scaricato → Condividi → ClassAI. Dal computer puoi anche trascinare il PDF qui.</p>
+<input id="pdf2" type="file" accept="application/pdf,.pdf,.txt,text/plain" hidden></div>
 <div class="card" id="setup"><h2 id="sth">👋 Primo accesso: configura ClassAI</h2><p class="note">Bastano 2 minuti. I dati restano solo sul tuo telefono.</p>
 <div class="row"><div><label for="nm2">Il tuo nome</label><input id="nm2" autocomplete="name"></div><div><label for="rl">Ruolo</label><select id="rl"><option>Rappresentante dei genitori</option><option>Rappresentante degli studenti</option><option>Rappresentante d’istituto</option></select></div></div>
 <div class="row"><div><label for="lv2">Ordine di scuola</label><select id="lv2"><option>Infanzia</option><option>Primaria</option><option>Secondaria di I grado</option><option selected>Secondaria di II grado</option></select></div><div><label for="sch">Scuola</label><select id="sch"></select></div></div>
@@ -133,13 +141,26 @@ function loadPdfJs(){return window.pdfjsLib?Promise.resolve(window.pdfjsLib):new
 async function pdfToText(file){const lib=await loadPdfJs(),doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;let out=[];
  for(let i=1;i<=Math.min(doc.numPages,10);i++){const c=await(await doc.getPage(i)).getTextContent();out.push(c.items.map(x=>x.str+(x.hasEOL?"\n":" ")).join(""))}
  return out.join("\n").replace(/[ \t]+\n/g,"\n").replace(/[ \t]{2,}/g," ").trim()}
-$("pdf").onchange=async()=>{const f=$("pdf").files[0],st=$("pdfst");if(!f)return;st.className="note";st.textContent="Leggo "+f.name+"…";
+/* Un solo punto d'ingresso per i PDF: pulsante, pannello rapido, trascinamento, "Condividi → ClassAI" */
+function upState(t,c){[$("pdfst"),$("qst")].forEach(st=>{st.className="note"+(c?" "+c:"");st.textContent=t})}
+function matchItem(t){const m=t.match(/comunicazione\s*n[°.]?\s*(\d{1,4})/i)||t.match(/circolare\s*n[°.]?\s*(\d{1,4})/i);if(!m)return null;
+ return(D.all||D.items||[]).find(it=>new RegExp("^Comunicazione n\\. "+m[1]+"\\b").test(it.title))||null}
+async function handleFile(f){if(!f)return;if(!/pdf|text\/plain/i.test(f.type)&&!/\.(pdf|txt)$/i.test(f.name)){upState("Questo file non è un PDF: scegli il PDF della circolare.","wa");return}
+ upState("Leggo "+f.name+"…");
  try{const t=/\.txt$/i.test(f.name)||f.type==="text/plain"?(await f.text()).trim():await pdfToText(f);
-  if(t.replace(/\s/g,"").length<80){st.className="note wa";st.textContent="Il PDF sembra una scansione (immagine senza testo): non riesco a leggerlo. Copia a mano le informazioni principali qui sotto.";return}
-  $("in").value=t;st.className="note ok";st.textContent="✔ Letto "+f.name+" ("+t.split(/\s+/).length+" parole). Preparo la bozza…";
-  window.CURURL=window.UPIT&&/^https?:\/\//i.test(UPIT.url||"")?UPIT.url:"";$("go").click();window.CURURL=""}
- catch(e){st.className="note er";st.textContent="Non riesco a leggere il file: "+(e.message||e)}
- finally{$("pdf").value=""}};
+  if(t.replace(/\s/g,"").length<80){upState("Il PDF sembra una scansione (immagine senza testo): non riesco a leggerlo. Apri la circolare e copia a mano le informazioni principali nella «Bozza manuale».","wa");return}
+  const it=window.UPIT||matchItem(t);window.UPIT=it;
+  if(it){it.text=t;it.status="caricata";ls("ca_txt_"+it.id,t.slice(0,8000));render()}   // resta letta: non dovrai ricaricarla
+  $("in").value=t;upState("✔ Letto "+f.name+" ("+t.split(/\s+/).length+" parole)"+(it?" · "+it.title.replace(/^Comunicazione n\. (\d+).*/,"circolare n. $1"):"")+". Bozza pronta qui sotto.","ok");
+  window.CURIT=it;window.CURURL=it&&/^https?:\/\//i.test(it.url||"")?it.url:"";$("go").click();window.CURURL="";window.CURIT=null;$("quick").hidden=true}
+ catch(e){upState("Non riesco a leggere il file: "+(e.message||e),"er")}}
+$("pdf").onchange=()=>{handleFile($("pdf").files[0]);$("pdf").value=""};
+$("pdf2").onchange=()=>{handleFile($("pdf2").files[0]);$("pdf2").value=""};
+$("qpick").onclick=()=>$("pdf2").click();
+$("qx").onclick=()=>{$("quick").hidden=true;window.UPIT=null};
+document.addEventListener("dragover",e=>{if([...(e.dataTransfer||{}).types||[]].includes("Files")){e.preventDefault();document.body.classList.add("drag")}});
+document.addEventListener("dragleave",e=>{if(!e.relatedTarget)document.body.classList.remove("drag")});
+document.addEventListener("drop",e=>{const f=e.dataTransfer&&e.dataTransfer.files[0];document.body.classList.remove("drag");if(f){e.preventDefault();handleFile(f)}});
 $("cl").onclick=()=>{$("in").value="";window.UPIT=null;$("upbox").hidden=true;["pipe","res","vf","aic"].forEach(i=>$(i).hidden=true)};
 
 /* ---------- AGENTI ---------- */
@@ -379,17 +400,18 @@ function greet(){const h=new Date().getHours(),g=h<12?"Buongiorno":h<18?"Buon po
  if(sd.length){const s=sd[0];m+=" Prossima scadenza: "+s.it.title.slice(0,60)+", "+(s.dd===0?"oggi":s.dd===1?"domani":"tra "+s.dd+" giorni")+"."}
  $("hmsg").textContent=m;$("hmsg").className="hmsg"+(sd.length&&sd[0].dd<=3?" urg":"");log("ClassAI: "+m,"a")}
 const unread=it=>it.status==="titolo"||it.status==="illeggibile"||(it.type==="pdf"&&(it.text||"").length<250);
-let PENDING=new URLSearchParams(location.search).get("carica");
-function openUpload(it){window.UPIT=it;const det=document.querySelector("details.card");det.open=true;const b=$("upbox");b.textContent="";
- const h=document.createElement("b");h.textContent="📄 "+it.title;const p=document.createElement("p");p.className="note";
- p.textContent="ClassAI non è riuscito a leggere questa circolare. 1) Apri l’originale e scarica il PDF  2) Caricalo qui sotto: preparo la bozza con data, scadenze e il link ufficiale.";
- const a=document.createElement("a");a.href=/^https?:\/\//i.test(it.url||"")?it.url:"#";a.target="_blank";a.rel="noopener";a.textContent="Apri l’originale ↗";
- b.append(h,p,a);b.hidden=false;$("pdfst").className="note";$("pdfst").textContent="Il file viene letto sul tuo telefono: non viene inviato a nessuno.";
- b.scrollIntoView({behavior:"smooth",block:"start"});say("Apri l’originale, scarica il PDF e caricalo qui: preparo io la bozza.")}
+let PENDING=new URLSearchParams(location.search).get("carica"),SHARED=new URLSearchParams(location.search).has("shared");
+function openUpload(it){window.UPIT=it||null;const ok=it&&/^https?:\/\//i.test(it.url||"");
+ $("qh").textContent=it?"📄 "+it.title:"📄 Carica una circolare";
+ $("qt").textContent=it?"ClassAI non riesce a leggerla da solo. Tocca ①, scarica il PDF, poi tocca ②: al resto penso io.":"Scegli il PDF della circolare: riconosco da solo di quale comunicazione si tratta.";
+ $("qopen").hidden=!ok;if(ok)$("qopen").href=it.url;$("qpick").textContent=it?"② Carica il PDF scaricato":"Scegli il PDF";
+ upState("Più veloce su Android: apri il PDF scaricato → Condividi → ClassAI. Dal computer puoi anche trascinare il PDF qui.");
+ $("quick").hidden=false;$("quick").scrollIntoView({behavior:"smooth",block:"start"});
+ say(it?"Tocca uno per aprire la circolare, poi due per caricarla.":"Scegli il PDF della circolare.")}
 function card(x){const it=x.it,el=document.createElement("div");el.className="ag";
  const b=document.createElement("div"),w=document.createElement("div"),h=document.createElement("b"),sp=document.createElement("span"),bt=document.createElement("div");
  const unr=it.found>ls("ca_last");b.textContent=!it.text?"❓":x.r.ok?"📣":"🚫";h.textContent=(unr?"● ":"")+it.title;
- sp.textContent=(it.text?x.r.why+" — "+(it.sunto&&it.sunto.testo||sunto(lettore(it.text).s)[0]||"").slice(0,160):"Testo non leggibile (scansione): apri l’originale")+" · "+(it.type==="pdf"?"PDF":"pagina")+(it.status==="ocr"?" (letto con OCR: ricontrolla)":"")+(it.status==="titolo"?" · solo titolo: apri l’originale per i dettagli":"")+(it.sunto?" · 🤖✓ sunto verificato":"")+(it.rettDi?" · 🔁 rettifica di "+it.rettDi.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+(it.sostDa?" · ⚠ aggiornata da "+it.sostDa.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+" · "+it.found;
+ sp.textContent=(it.text?x.r.why+" — "+(it.sunto&&it.sunto.testo||sunto(lettore(it.text).s)[0]||"").slice(0,160):"Testo non leggibile (scansione): apri l’originale")+" · "+(it.type==="pdf"?"PDF":"pagina")+(it.status==="ocr"?" (letto con OCR: ricontrolla)":"")+(it.status==="titolo"?" · solo titolo: tocca «📄 Carica PDF»":"")+(it.status==="caricata"?" · 📄 caricata da te":"")+(it.sunto?" · 🤖✓ sunto verificato":"")+(it.rettDi?" · 🔁 rettifica di "+it.rettDi.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+(it.sostDa?" · ⚠ aggiornata da "+it.sostDa.title.replace(/^Comunicazione n\. (\d+).*/,"n. $1"):"")+" · "+it.found;
  bt.className="btns";const a=document.createElement("a");a.href=/^https?:\/\//i.test(it.url||"")?it.url:"#";a.target="_blank";a.rel="noopener";a.textContent="Originale";bt.append(a);
  if(it.text){const g=document.createElement("button");g.textContent="Prepara messaggio";g.onclick=()=>prep(it);bt.append(g)}
  if(unread(it)){const u=document.createElement("button");u.className="sec";u.textContent="📄 Carica PDF";u.onclick=()=>openUpload(it);bt.append(u)}
@@ -410,7 +432,7 @@ function prep(it){const sv=ls("ca_last");$("in").value=it.text;window.CURIT=it;w
 function handle(q0){const q=q0.toLowerCase();log("Tu: "+q0,"u");
  const cur=()=>CUR[CI]&&CUR[CI].it;
  if(/impostaz|configur|cambia/.test(q)){$("setup").hidden=false;$("sth").textContent="⚙️ Impostazioni";$("setup").scrollIntoView({behavior:"smooth"});return say("Ecco le impostazioni: cambia scuola, classe o indirizzo e salva.")}
- if(/aiuto|comandi|cosa sai/.test(q))return say("Puoi dirmi: novità, scadenze, prossima, riassumi, prepara il messaggio, copia, apri whatsapp, aggiorna, silenzio.");
+ if(/aiuto|comandi|cosa sai/.test(q))return say("Puoi dirmi: novità, scadenze, prossima, riassumi, prepara il messaggio, carica circolare, riassunto AI, copia, apri whatsapp, aggiorna, silenzio.");
  if(/chi sei|come ti chiami/.test(q))return say("Sono ClassAI"+(OWNER?", creato da "+OWNER:"")+". Leggo tutto il sito della scuola e ti preparo i messaggi per i genitori.");
  if(/silenzio|muto|zitto/.test(q)){voiceOn=false;speechSynthesis.cancel();return say("Va bene, resto in silenzio.")}
  if(/parla|voce/.test(q)&&!/prepara/.test(q)){voiceOn=true;return say("Ok, torno a parlare.")}
@@ -422,6 +444,7 @@ function handle(q0){const q=q0.toLowerCase();log("Tu: "+q0,"u");
   CI=0;const n=nuovi(),L=n.length?n:CUR.slice(0,3);if(!L.length)return say("Per ora non ci sono comunicazioni per te.");
   return say((n.length?"Hai "+n.length+" novità. ":"Nessuna novità, ecco le ultime. ")+L.slice(0,3).map(x=>x.it.title.slice(0,70)).join("; ")+". Di’ riassumi per i dettagli della prima.")}
  if(/prossim|avanti|successiv/.test(q)){CI=Math.min(CI+1,CUR.length-1);return cur()?say(sumr(cur())):say("Non ho altre comunicazioni.")}
+ if(/carica|pdf|scaricat/.test(q)){openUpload(null);return}
  if(/riassunto (ai|a i|intelligen)|\bai\b/.test(q)){if($("aic").hidden)return say("Prima preparo un messaggio o carico una circolare, poi faccio il riassunto AI.");$("aib").click();return say(AI.res?"Ecco il riassunto AI verificato.":"Preparo il riassunto AI, a parte dal messaggio.")}
  if(/riassum|leggi|dettagli|dimmi/.test(q))return cur()?say(sumr(cur())):say("Non ho comunicazioni da leggere.");
  if(/prepara|messaggio|bozza/.test(q)){if(!cur())return say("Non ho comunicazioni per te da trasformare in messaggio.");
@@ -444,10 +467,13 @@ async function load(){const sid=ls("ca_sch"),s=SS.schools.find(x=>x.id===sid);wi
   $("hmsg").textContent="La tua scuola non è ancora monitorata: invia la richiesta qui sotto a chi gestisce ClassAI.";return}
  $("req").hidden=true;$("sc").value=s.name;ls("ca_sc",s.name);
  try{D=await (await fetch("data/"+s.id+".json",{cache:"no-cache"})).json()}catch(e){D={items:[]}}
- D.all=D.items||[];const sn=ls("ca_since");if(sn)D.items=(D.items||[]).filter(it=>{const d=(it.pub||it.found||"").slice(0,10);return!d||d>=sn});collega(D.items||[]);
+ D.all=D.items||[];D.all.forEach(it=>{const t=ls("ca_txt_"+it.id);if(t&&unread(it)){it.text=t;it.status="caricata"}});   // circolari già caricate da te
+ const sn=ls("ca_since");if(sn)D.items=(D.items||[]).filter(it=>{const d=(it.pub||it.found||"").slice(0,10);return!d||d>=sn});collega(D.items||[]);
  render();greet();ls("ca_last",new Date().toISOString().slice(0,10)+" 00:00");
  if(PENDING){const it=(D.items||[]).find(x=>x.id===PENDING)||(D.all||[]).find(x=>x.id===PENDING);PENDING=null;history.replaceState(null,"",location.pathname);
-  if(it)openUpload(it);else say("Non trovo più quella circolare: cercala nell’elenco «Tutto».")}}
+  if(it&&it.status==="caricata"){say("Questa circolare l’hai già caricata: ecco la bozza.");prep(it)}else if(it)openUpload(it);else say("Non trovo più quella circolare: cercala nell’elenco «Tutto».")}
+ if(SHARED){SHARED=false;history.replaceState(null,"",location.pathname);try{const c=await caches.open("classai-share"),r=await c.match("shared-file");
+  if(r){const b=await r.blob(),n=decodeURIComponent(r.headers.get("X-Name")||"circolare.pdf");await c.delete("shared-file");$("quick").hidden=false;$("qh").textContent="📄 Circolare condivisa";$("qt").textContent="";$("qopen").hidden=true;await handleFile(new File([b],n,{type:b.type||"application/pdf"}))}}catch(e){say("Non riesco a leggere il file condiviso: caricalo con il pulsante.")}}}
 function save(){const nm=$("nm2").value.trim(),cls=$("cls").value.trim().toUpperCase(),sid=$("sch").value,e=$("serr");
  if(!nm){e.textContent="Scrivi il tuo nome.";return}
  if(!/^[1-5][A-Z]{0,3}$/.test(cls.replace(/[\s^°]/g,""))){e.textContent="Classe non valida: usa ad esempio 3AS.";return}
