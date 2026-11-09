@@ -68,7 +68,7 @@ ol,ul{padding-left:20px;margin:6px 0}
 <div class="row"><div><label for="cls">Classe (es. 3AS)</label><input id="cls" maxlength="5" autocapitalize="characters"></div><div><label for="ind">Indirizzo (es. Operatore socio sanitario)</label><input id="ind"></div></div>
 <label for="ali">Altri modi in cui la scuola nomina la tua classe (facoltativo, separati da virgola)</label><input id="ali" placeholder="Es. 3 A SS, terza A socio sanitario, sede centrale">
 <label for="since">Mostra le comunicazioni dal (facoltativo)</label><input id="since" type="date">
-<label for="aik">Chiave AI personale per i riassunti dei PDF caricati (facoltativa)</label><input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="AIza… (da aistudio.google.com → Chiavi API)">
+<label for="aik">Chiave AI personale per i riassunti dei PDF caricati (facoltativa)</label><input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="da aistudio.google.com → Chiavi API → icona Copia">
 <p class="note">Resta solo su questo telefono, non viene pubblicata. Le circolari lette dal sito hanno già il riassunto AI quando possibile; la chiave serve per quelle che carichi tu.</p>
 <div class="btns"><button id="sv">Salva e inizia</button></div><p class="er" id="serr"></p></div>
 <div class="card" id="req" hidden><h2>📨 Attiva il monitoraggio della tua scuola</h2><p class="note">La tua scuola non è ancora nell’elenco. Invia questa richiesta a chi gestisce ClassAI: la aggiungerà in pochi minuti. Intanto puoi incollare le circolari a mano.</p><pre id="snip" style="white-space:pre-wrap;font-size:.8rem"></pre><div class="btns"><button id="cps">Copia</button><button class="sec" id="wps">Invia su WhatsApp</button></div></div>
@@ -445,7 +445,7 @@ function save(){const nm=$("nm2").value.trim(),cls=$("cls").value.trim().toUpper
  const nn=$("nsn").value.trim(),nu=$("nsu").value.trim();
  if(sid==="__new"&&(!nn||!/^https?:\/\/[^\s.]+\.[^\s]+$/.test(nu))){e.textContent="Inserisci nome e sito della scuola (con https://).";return}
  e.textContent="";ls("ca_nm",nm);$("nm").value=nm;ls("ca_role",$("rl").value);ls("ca_lv",$("lv2").value);$("lv").value=$("lv2").value;
- const ak=$("aik").value.trim();if(ak&&!/^[\w-]{20,}$/.test(ak)){e.textContent="La chiave AI non sembra valida: ricopiala da AI Studio (o lascia vuoto).";return}
+ const ak=$("aik").value.trim();if(ak&&!/^[\w.\-]{20,200}$/.test(ak)){e.textContent="La chiave AI non sembra valida: ricopiala da AI Studio (o lascia vuoto).";return}
  ls("ca_cls",cls);ls("ca_ind",$("ind").value.trim());ls("ca_ali",$("ali").value.trim());ls("ca_since",$("since").value);ls("ca_sch",sid);ls("ca_aik",ak);
  if(sid==="__new")ls("ca_newsc",JSON.stringify({name:nn,url:nu}));
  ls("ca_done","1");title();showApp();load()}
