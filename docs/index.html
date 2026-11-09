@@ -155,7 +155,9 @@ function filtro(s){
  return{soloStaff:staff>=1&&!par||staff>=3,dest:d.length?d.join(", "):"Tutte le famiglie (nessuna restrizione indicata)",restrizioni:d.length>0,hasCl:!!cl,hasInd:!!ind,indTxt:(s.match(/indirizzo\s+([A-ZÀ-Ú][\wÀ-ú'’-]+(?:\s+[\wÀ-ú'’-]+){0,7})/)||[0,""])[1],magg:/maggiorenn/i.test(s)};
 }
 function mkDate(d,m,y,ctx){const now=new Date();if(!y){y=now.getFullYear();if(new Date(y,m-1,d)<new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)&&m<now.getMonth()+1)y++}if(y<100)y+=2000;const dt=new Date(y,m-1,d);const valid=dt.getMonth()===m-1&&dt.getDate()===d;return{dt,valid,ctx,d,m,y}}
-function estrattore(s){s=s.replace(/\b(Prot\.|Circolare)\s*n?[°.]?\s*[\w\/.\-]+(\s+del\s+[\d\/.]+)?/gi,"");
+const RX_FIRMA=new RegExp("\\b([A-ZÀ-Ú][a-zà-ú']{2,}(?: [A-ZÀ-Ú][a-zà-ú']+)?),\\s*(?:l[iì]\\s*)?(?:\\d{1,2}\\s+(?:"+MESI.join("|")+")\\s+\\d{4}|\\d{1,2}[\\/.]\\d{1,2}[\\/.]\\d{2,4})","g");
+function estrattore(s){s=s.replace(/\b(Prot\.|Circolare)\s*n?[°.]?\s*[\w\/.\-]+(\s+del\s+[\d\/.]+)?/gi,"")
+ .replace(RX_FIRMA,(m,luogo)=>/^(luned|marted|mercoled|gioved|venerd|sabato|domenica|entro|oggi|domani)/i.test(luogo)?m:"");   // "Anzio, 9 novembre 2026" = data di firma, non un evento
  const dates=[];let m;
  const r1=new RegExp("(\\d{1,2})\\s*°?\\s*("+MESI.join("|")+")(?:\\s+(\\d{4}))?","gi");
  while((m=r1.exec(s)))dates.push({...mkDate(+m[1],MESI.indexOf(m[2].toLowerCase())+1,m[3]?+m[3]:0),pos:m.index});
@@ -163,6 +165,8 @@ function estrattore(s){s=s.replace(/\b(Prot\.|Circolare)\s*n?[°.]?\s*[\w\/.\-]+
  while((m=r2.exec(s)))dates.push({...mkDate(+m[1],+m[2],+m[3]),pos:m.index});
  dates.sort((a,b)=>a.pos-b.pos);
  dates.forEach(x=>{const pre=s.slice(Math.max(0,x.pos-45),x.pos);x.scad=/entro|non oltre|scadenza|improrogabil|termine/i.test(pre.split(/[.;]\s/).pop())});
+ {const u=[],ix={};dates.forEach(x=>{const k=x.y+"-"+x.m+"-"+x.d;   // una data citata più volte compare una volta sola (vince la scadenza)
+  if(k in ix){if(x.scad&&!u[ix[k]].scad)u[ix[k]]=x}else{ix[k]=u.length;u.push(x)}});dates.splice(0,dates.length,...u)}
  const amts=[];const r3=/(?:€|euro)\s?(\d{1,4}(?:[.,]\d{1,2})?)|(\d{1,4}(?:[.,]\d{1,2})?)\s?(?:€|euro)/gi;
  while((m=r3.exec(s))){const v=(m[1]||m[2]).replace(",",".");const n=parseFloat(v);if(!amts.includes(n))amts.push(n)}
  const og=s.match(/oggetto\s*:\s*([^.]{3,90})/i);
@@ -197,24 +201,28 @@ function verificatore(f,e,s){
  return k;
 }
 const RXD=new RegExp("\\d{1,2}\\s*°?\\s*("+MESI.join("|")+")|\\d{1,2}[\\/.]\\d{1,2}[\\/.]\\d{2,4}","i");
-function semp(x){let r=x.replace(/^(Con la presente\s+)?(Si|si)\s+(comunica|informa|avvisa|ricorda|rende noto|porta a conoscenza)(\s+(alle SSLL|ai genitori|agli studenti|a tutti|alle famiglie))?(\s+che)?,?\s*/,"")
+function semp(x,lim=280){let r=x.replace(/^(Con la presente\s+)?(Si|si)\s+(comunica|informa|avvisa|ricorda|rende noto|porta a conoscenza)(\s+(alle SSLL|ai genitori|agli studenti|a tutti|alle famiglie))?(\s+che)?,?\s*/,"")
  .replace(/\balle SSLL\b/gi,"ai genitori").replace(/\bSSLL\b/g,"voi")
- .replace(/a mezzo( di)?/gi,"tramite").replace(/pro[- ]capite/gi,"a testa").replace(/,?\s*esercente la (responsabilità|potestà) genitoriale/gi,"")
+ .replace(/a mezzo( di)?/gi,"tramite").replace(/pro[- ]capite/gi,"a testa").replace(/\s*dell[’']\s*esercent[ei] la (responsabilità|potestà) genitoriale/gi," dei genitori").replace(/,?\s*esercent[ei] la (responsabilità|potestà) genitoriale/gi,"")
+ .replace(/\bp\.\s?v\./gi,"").replace(/\bR\.\s?E\./g,"registro elettronico")
  .replace(/entro e non oltre/gi,"entro").replace(/\bcontestualmente\b/gi,"inoltre").replace(/\bin data (?=\d)/gi,"il ")
  .replace(/\bnonché\b/gi,"e").replace(/\baltresì\b/gi,"anche").replace(/\bpertanto\b/gi,"quindi").replace(/\bsono tenuti a\b/gi,"devono")
  .replace(/\bda saldare\b/gi,"da pagare").replace(/\bsaldare\b/gi,"pagare").replace(/\s+/g," ").trim();
- if(!r)return"";r=r[0].toUpperCase()+r.slice(1);if(r.length>280)r=r.slice(0,280).replace(/\s+\S*$/,"")+"…";
+ if(!r)return"";r=r[0].toUpperCase()+r.slice(1);if(r.length>lim)r=r.slice(0,lim).replace(/\s+\S*$/,"")+"…";
  return /[.!?…]$/.test(r)?r:r+"."}
 function sunto(s){
+ const io=s.search(/oggetto\s*:/i);if(io>0&&io<2500)s=s.slice(io);   // salta l'intestazione della scuola (ministero, indirizzi, telefoni)
  let t=s.replace(/\bProt\.\s*n?[°.]?\s*[\w\/.\-]+(\s+del\s+[\d\/.]+)?/gi,"").replace(/Circolare\s+n[°.]?\s*\d+(\/\d+)?/gi,"").replace(/Oggetto\s*:[^.]*\./i,"")
   .replace(/(Il |La )?Dirigente Scolastic[oa]\b[^.]{0,60}$/i,"").replace(/firmato digitalmente.*$/i,"")
-  .replace(/SS\.\s?LL\./g,"SSLL").replace(/\ba\.\s?s\./gi,"a§s§").replace(/\b(art|n|prot|cfr|ecc|sig|dott|prof)\./gi,"$1§");
+  .replace(/SS\.\s?LL\./g,"SSLL").replace(/\ba\.\s?s\./gi,"a§s§").replace(/\b(?:[A-Za-z]\.\s?){2,}/g,m=>m.replace(/\./g,"§"))
+  .replace(/\b(art|n|prot|cfr|ecc|sig|sigg|dott|prof|lab|pag|tel|sez|ist|rif|es|vd|nr|ing|avv|geom)\./gi,"$1§");
  const S=t.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ú0-9])/).map(x=>x.replace(/§/g,".").trim().replace(/^(visto|vista|visti|considerato|tenuto conto|sentito|ai sensi|richiamat|preso atto)[^]*?,\s*(?=(con la presente\s+)?si\s+(comunica|informa|avvisa|ricorda|dispone|rende noto|porta a conoscenza))/i,"")).filter(x=>x.length>25&&!(/^(Ai|Agli|Alle|Al|Alla)\s/.test(x)&&x.length<140));
  const BAD=/^(visto|vista|visti|considerato|tenuto conto|sentito|ai sensi|richiamat|preso atto)/i,END=/cordiali saluti|distinti saluti|si ringrazia|si confida|certi della|buon lavoro/i;
  const ACT=/entro|dovr|devono|è necessario|occorre|si invit|sono invitat|consegnar|versar|firmar|compilar|iscriv|prenot|portare|munirs|autorizz|pagament/i;
  const TOP=/gita|visita|uscita|viaggio|sciopero|assemblea|colloqui|elezion|iscrizion|contribut|quota|orario|vacanz|sospension|mensa|pagopa|registro|scrutini|esami|open day/i;
  const c=S.filter(x=>!BAD.test(x)&&!END.test(x)).map((x,i)=>({x,i,p:(RXD.test(x)?3:0)+(/€|euro/i.test(x)?3:0)+(ACT.test(x)?2:0)+(TOP.test(x)?2:0)+(i<2?1:0)-(x.length>320?2:0)}));
- return c.sort((a,b)=>b.p-a.p).slice(0,3).sort((a,b)=>a.i-b.i).map(o=>semp(o.x)).filter(Boolean)}
+ const top=c.sort((a,b)=>b.p-a.p).slice(0,3).sort((a,b)=>a.i-b.i);
+ return top.map(o=>semp(o.x,top.length>1?170:280)).filter(Boolean)}   // più frasi = ciascuna più corta, così "In breve" resta breve
 
 function redattore(f,e,s){
  const sc=e.dates.find(x=>x.scad&&x.valid),ev=e.dates.filter(x=>!x.scad&&x.valid);
@@ -244,10 +252,11 @@ $("go").onclick=()=>{
  const l=lettore(raw);row("📖","Agente Lettore","Normalizzato il testo: "+l.parole+" parole.");
  const f=filtro(l.s);
  if(f.soloStaff&&!forza){row("🛑","Agente Filtro","Sembra una circolare per il solo personale scolastico: di norma NON va inviata ai genitori.","wa");const b=document.createElement("button");b.className="sec";b.textContent="Genera comunque";b.onclick=()=>{forza=true;$("go").click();forza=false};$("log").append(b);return}
- row("🧭","Agente Filtro","Destinatari: "+f.dest+".");
+ const myc=$("cls").value.trim(),rv=myc?rilevanza(l.s,myc,$("ind").value):{ok:true};
+ row("🧭","Agente Filtro","Destinatari: "+f.dest+"."+(rv.ok?"":" ⚠ "+rv.why+" ("+myc.toUpperCase()+")."),rv.ok?"":"wa");
  const e=estrattore(l.s);
  row("🔎","Agente Estrattore",e.dates.length+" date, "+e.amts.length+" importi, "+e.az.length+" azioni"+(e.tp?" · tema: "+e.tp:"")+".");
- const k=verificatore(f,e,l.s);const nw=k.filter(x=>x[0]!=="ok").length;
+ const k=verificatore(f,e,l.s);if(!rv.ok){k.unshift(["er",rv.why+": destinatari "+f.dest+", la tua classe è "+myc.toUpperCase()+". Di solito non va inviata al gruppo della tua classe."]);setTimeout(()=>say("Attenzione: questa circolare non sembra riguardare la "+myc.toUpperCase()+". Destinatari: "+f.dest+"."),50)}const nw=k.filter(x=>x[0]!=="ok").length;
  row("✅","Agente Verificatore",nw?nw+" punti da controllare (vedi sotto).":"Nessuna anomalia rilevata.",nw?"wa":"ok");
  row("🧠","Agente Sintetizzatore","Sunto in italiano semplice: "+sunto(l.s).length+" frasi chiave, senza burocratese."+(window.CURIT&&CURIT.sunto&&CURIT.sunto.verificato?" Riassunto AI verificato pronto nel riquadro 🧠 a parte.":""));
  row("✍️","Agente Redattore","Bozza WhatsApp pronta, con la tua firma.");
