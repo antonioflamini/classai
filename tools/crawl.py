@@ -171,9 +171,7 @@ def crawl(sc):
     if not first:
         hot = [i for i in new if (("Famiglie" in i["tip"] or "Alunni" in i["tip"]) if "tip" in i else (i["score"] >= 1 and not (STAFF.search(i["title"] + i["text"][:1500]) and not FAM.search(i["text"][:3000]))))]
         import digest
-        if hot:
-            tg(f"🏫 {sc['name']} – novità:\n" + "\n\n".join(f"• {'🔁 ' if re.search('rettific|integrazion|annull', i['title'], re.I) else ''}{i['title']}\n{i['url']}" + ("\n📝 " + i["sunto"]["testo"] if i.get("sunto") else "") + digest.upload_hint(i, cfg) for i in hot[:10]) + "\n\nApri ClassAI per la bozza WhatsApp.")
-            if len(hot) > 10: tg(f"…e altre {len(hot) - 10} comunicazioni: le trovi in ClassAI.")
+        digest.news(sc, hot, cfg)   # gestore + gruppo scuola: tutto; gruppi classe: solo ciò che li riguarda
     if not first:
         try:
             import digest; digest.notify_new(sc, new, cfg.get("salt", ""), cfg)

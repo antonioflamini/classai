@@ -4,4 +4,6 @@
 3. Tre cose da usare ogni giorno: **Per te** (le comunicazioni che ti riguardano), **Calendario** (scadenze ⏰ ed eventi 📅), **Prepara messaggio** (bozza WhatsApp con "In breve").
 4. Parla con l'assistente: "novità", "calendario", "riassumi", "prepara il messaggio", "copia".
 5. Prima di inviare, **rileggi sempre** con la circolare originale (pulsante "Originale"). Se qualcosa è sbagliato, premi **⚠ Segnala errore**.
+6. **Siete in due per la stessa classe?** Usate lo stesso link, ognuno col proprio nome. Per ricevere entrambi gli avvisi su Telegram chiedi al gestore un gruppo della classe (il link d'invito compare nel tab Calendario).
+7. **Scuola o classe non attiva?** Usa "La mia scuola non è in elenco" o, nel tab Calendario, "Richiedi l'attivazione": la richiesta arriva su WhatsApp al gestore.
 Se vedi "solo titolo": ClassAI non è riuscito ad aprire l'allegato, leggi la circolare originale.

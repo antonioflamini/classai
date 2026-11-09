@@ -57,7 +57,18 @@ def main():
         except Exception: print("  Non ho trovato la chat: i messaggi Telegram saranno disattivati (puoi aggiungerli dopo).")
     print("\n4/7 Chiave AI: aistudio.google.com → Get API key.")
     key = ask("CLASSAI_AI_KEY", "    Incolla la chiave (facoltativo, senza il sunto AI userà le regole)", secret=True)
-    c = json.load(open("config.json", encoding="utf-8-sig")); c["owner"] = owner or c.get("owner", ""); c["repo"] = f"{user}/{repo}"; c.setdefault("contact", {})["whatsapp"] = wa
+    c = json.load(open("config.json", encoding="utf-8-sig"))
+    if not c.get("schools") or c["schools"][0].get("url", "").startswith("INCOLLA"):   # pacchetto pulito: chiede la scuola
+        print("\n   La tua scuola")
+        sn = ask("CLASSAI_SCHOOL", "    Nome della scuola (es. IC Mario Rossi)")
+        su = ask("CLASSAI_SCHOOL_URL", "    Sito della scuola (https://…)").rstrip("/")
+        sid = "".join(ch if ch.isalnum() else "-" for ch in sn.lower().split()[-1] if sn)[:30] or "scuola"
+        cl = ask("CLASSAI_CLASS", "    La tua classe (es. 3AS)").upper().replace(" ", "")
+        ind = ask("CLASSAI_IND", "    Indirizzo (facoltativo)")
+        since = ask("CLASSAI_SINCE", "    Mostra comunicazioni dal (AAAA-MM-GG)", default=time.strftime("%Y-%m-%d"))
+        c["schools"] = [{"id": sid, "name": sn, "url": su, "max_pages": 150, "depth": 3, "since": since, "adapter": "auto",
+                         "digest": [{"classe": cl, "indirizzo": ind, "alias": []}] if cl else []}]
+    c["owner"] = owner or c.get("owner", ""); c["repo"] = f"{user}/{repo}"; c.setdefault("contact", {})["whatsapp"] = wa
     json.dump(c, open("config.json", "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     print("\n5/7 Carico il progetto su GitHub…")
     if not os.path.isdir(".git"): run("git", "init", "-b", "main")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Promemoria (Telegram + ntfy per classe), calendario .ics per classe e riepilogo del lunedì.
 Uso: python tools/digest.py [--dry] [--ics-only] [--today AAAA-MM-GG]"""
-import json, os, re, sys, hashlib, datetime as dt, urllib.parse, urllib.request
+import json, os, re, sys, hashlib, datetime as dt, urllib.parse, urllib.request, urllib.error
 for _s in (sys.stdout, sys.stderr):
     try: _s.reconfigure(encoding="utf-8", errors="replace")   # Windows: emoji nei log senza errori
     except Exception: pass
@@ -46,11 +46,46 @@ def relevant(it, prof):
     if ok and prof.get("indirizzo") and mi and stems(prof["indirizzo"]) and not (stems(mi[1]) & stems(prof["indirizzo"])): ok = False
     return ok
 
-def tg(msg):
-    tok, chat = os.getenv("TG_TOKEN"), os.getenv("TG_CHAT")
-    if tok and chat:
-        try: urllib.request.urlopen(f"https://api.telegram.org/bot{tok}/sendMessage", urllib.parse.urlencode({"chat_id": chat, "text": msg[:4000], "disable_web_page_preview": "true"}).encode(), timeout=20)
-        except Exception as e: print("telegram:", e)
+def tg(msg, chat=None):
+    """Invia a una chat Telegram; senza `chat` va al gestore (segreto TG_CHAT)."""
+    tok, chat = os.getenv("TG_TOKEN"), str(chat or os.getenv("TG_CHAT") or "")
+    if not (tok and chat): return
+    for _ in range(2):
+        try:
+            urllib.request.urlopen(f"https://api.telegram.org/bot{tok}/sendMessage", urllib.parse.urlencode({"chat_id": chat, "text": msg[:4000], "disable_web_page_preview": "true"}).encode(), timeout=20); return
+        except urllib.error.HTTPError as e:
+            try: new = json.loads(e.read()).get("parameters", {}).get("migrate_to_chat_id")
+            except Exception: new = None
+            if new:   # il gruppo è diventato "supergruppo": Telegram cambia l'ID
+                print(f"telegram: la chat {chat} ora è {new}: aggiorna tg_chat in config.json (python tools/gestisci.py telegram)"); chat = str(new); continue
+            print("telegram:", chat, e); return
+        except Exception as e: print("telegram:", chat, e); return
+
+def tg_route(msg, chats, cfg):
+    """Invia ai gruppi indicati (scuola/classe); il gestore riceve una copia se admin_copy è attivo
+    (predefinito) oppure se non c'è nessun gruppo configurato. Ogni chat riceve il messaggio una volta sola."""
+    out = [str(c) for c in chats if c]
+    if cfg.get("admin_copy", True) or not out: out.append(os.getenv("TG_CHAT") or "")
+    for c in dict.fromkeys(c for c in out if c): tg(msg, c)
+
+def class_chat(sc, prof): return prof.get("tg_chat") or sc.get("tg_chat")
+
+def fmt_news(sc, items, cfg, head=""):
+    return (f"🏫 {sc['name']}{head} – novità:\n" + "\n\n".join(
+        f"• {'🔁 ' if re.search('rettific|integrazion|annull', i['title'], re.I) else ''}{i['title']}\n{i['url']}"
+        + ("\n📝 " + i["sunto"]["testo"] if i.get("sunto") else "") + upload_hint(i, cfg) for i in items[:10])
+        + (f"\n\n…e altre {len(items) - 10}: le trovi in ClassAI." if len(items) > 10 else "") + "\n\nApri ClassAI per la bozza WhatsApp.")
+
+def news(sc, hot, cfg):
+    """Chiamata da crawl.py con le novità per famiglie/alunni: gestore + gruppo della scuola ricevono tutto,
+    il gruppo di ogni classe riceve solo ciò che riguarda quella classe."""
+    if hot: tg_route(fmt_news(sc, hot, cfg), [sc.get("tg_chat")], cfg)
+    done = {str(sc.get("tg_chat") or ""), str(os.getenv("TG_CHAT") or "")}
+    for prof in profiles(sc):
+        c = str(prof.get("tg_chat") or "")
+        if not c or c in done: continue
+        rel = [i for i in hot if relevant(i, prof)]
+        if rel: tg(fmt_news(sc, rel, cfg, f" · classe {prof['classe']}"), c)
 
 def unread(it):
     """Circolare di cui ClassAI non ha il testo: allegato bloccato/assente, scansione illeggibile o testo troppo corto."""
@@ -161,21 +196,23 @@ def main():
             if not dry:
                 os.makedirs("docs/cal", exist_ok=True); fn = f"cal/{sc['id']}-{re.sub('[^A-Za-z0-9]', '', prof['classe'].upper())}.ics"
                 open("docs/" + fn, "w", encoding="utf-8", newline="").write(make_ics(sc, prof, full, today))
-                prof_out.setdefault(sc["id"], []).append({"classe": prof["classe"].upper(), "ics": fn, "ntfy": tp})
+                po = {"classe": prof["classe"].upper(), "ics": fn, "ntfy": tp}
+                if prof.get("tg_link") or sc.get("tg_link"): po["tg_link"] = prof.get("tg_link") or sc.get("tg_link")   # invito al gruppo Telegram
+                prof_out.setdefault(sc["id"], []).append(po)
             if ics_only: continue
             week = [(d, s, it) for d, s, it in full if 0 <= (d - today).days <= 7]
             for d, scad, it in week:
                 delta = (d - today).days
                 if delta in (0, 2):
                     k = f"{prof['classe']}|{it['id']}|{d}|{delta}"
-                    if k not in sent: sent.add(k); msgs.append((tp, f"{tag}{'⏰ Scadenza' if scad else '📅 Evento'} {'OGGI' if delta == 0 else 'tra 2 giorni'} ({GG[d.weekday()]} {d:%d/%m}): {short(it)}", it["url"]))
+                    if k not in sent: sent.add(k); msgs.append((tp, f"{tag}{'⏰ Scadenza' if scad else '📅 Evento'} {'OGGI' if delta == 0 else 'tra 2 giorni'} ({GG[d.weekday()]} {d:%d/%m}): {short(it)}", it["url"], class_chat(sc, prof)))
             if today.weekday() == 0 and f"week|{sc['id']}|{prof['classe']}|{today}" not in sent:
                 sent.add(f"week|{sc['id']}|{prof['classe']}|{today}")
                 body = "\n".join(f"• {GG[d.weekday()]} {d:%d/%m} {'⏰' if s else '📅'} {short(it)}" for d, s, it in week) or "Nessuna scadenza o evento in programma."
-                msgs.append((tp, f"{tag}🗓 Settimana dal {today:%d/%m} – classe {prof['classe']}:\n{body}", ""))
-    for tp, m, url in msgs:
-        if dry: print(m, "\n---")
-        else: tg(m + (("\n" + url) if url else "")); ntfy(tp, "ClassAI", m, url)
+                msgs.append((tp, f"{tag}🗓 Settimana dal {today:%d/%m} – classe {prof['classe']} ({sc['name']}):\n{body}", "", class_chat(sc, prof)))
+    for tp, m, url, chat in msgs:
+        if dry: print(f"[→ {'gruppo ' + str(chat) if chat else 'gestore'}{' + gestore' if chat and cfg.get('admin_copy', True) else ''}]", m, "\n---")
+        else: tg_route(m + (("\n" + url) if url else ""), [chat], cfg); ntfy(tp, "ClassAI", m, url)
     if not dry:
         os.makedirs("state", exist_ok=True)
         if not ics_only: json.dump(sorted(sent), open(sp, "w", encoding="utf-8"))

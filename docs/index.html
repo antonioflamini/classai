@@ -371,10 +371,10 @@ const done=()=>ls("ca_done")==="1";
 function showApp(){const d=done();$("hud").hidden=!d;$("feed").hidden=!d;$("setup").hidden=d}
 function req(n){if(!n||!n.name){$("req").hidden=true;return}
  const id=n.name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,30);
- const snip=JSON.stringify({id,name:n.name,url:n.url,max_pages:150,depth:3,since:ls("ca_since")||undefined},null,1);
+ const snip=JSON.stringify({id,name:n.name,url:n.url,since:ls("ca_since")||undefined,classe:ls("ca_cls")||undefined,indirizzo:ls("ca_ind")||undefined,alias:(ls("ca_ali")||"").split(",").map(y=>y.trim()).filter(Boolean)},null,1);
  $("snip").textContent=snip;$("req").hidden=false;
  $("cps").onclick=()=>{try{navigator.clipboard.writeText(snip)}catch(e){}};
- $("wps").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent("Ciao! Puoi aggiungere la mia scuola a ClassAI? Classe "+ls("ca_cls")+(ls("ca_ind")?" – "+ls("ca_ind"):"")+"\n"+snip),"_blank","noopener")}
+ $("wps").onclick=()=>window.open("https://wa.me/"+((SS.contact&&SS.contact.whatsapp)||"")+"?text="+encodeURIComponent("Ciao! Puoi aggiungere la mia scuola a ClassAI? Richiesta da incollare in «python tools/gestisci.py scuola»:\n"+snip),"_blank","noopener")}
 async function load(){const sid=ls("ca_sch"),s=SS.schools.find(x=>x.id===sid);window.ALI=ls("ca_ali");
  if(sid==="__new"||!s){let n={};try{n=JSON.parse(ls("ca_newsc")||"{}")}catch(e){}D={items:[]};$("sc").value=n.name||"";ls("ca_sc",$("sc").value);req(n);render();greet();
   $("hmsg").textContent="La tua scuola non è ancora monitorata: invia la richiesta qui sotto a chi gestisce ClassAI.";return}
@@ -404,10 +404,11 @@ function calbox(){const sid=ls("ca_sch"),cls=ls("ca_cls").toUpperCase(),p=(PR[si
  if(p){b.textContent="Calendario e notifiche della "+cls;const u=new URL(p.ics,location.href).href;
   const a=document.createElement("a");a.href=u.replace(/^https?/,"webcal");a.textContent="Iscriviti al calendario";
   const n=document.createElement("a");n.href="https://ntfy.sh/"+p.ntfy;n.target="_blank";n.rel="noopener";n.textContent="Notifiche: app ntfy, canale "+p.ntfy;
-  bt.append(a,mk("Copia link (Google Calendar)","sec",x=>{try{navigator.clipboard.writeText(u)}catch(e){}x.textContent="Copiato ✔"}),n)}
+  bt.append(a,mk("Copia link (Google Calendar)","sec",x=>{try{navigator.clipboard.writeText(u)}catch(e){}x.textContent="Copiato ✔"}),n);
+  if(p.tg_link&&/^https:\/\/t\.me\//.test(p.tg_link)){const t=document.createElement("a");t.href=p.tg_link;t.target="_blank";t.rel="noopener";t.textContent="💬 Entra nel gruppo Telegram della classe";bt.prepend(t)}}
  else{b.textContent="Calendario e notifiche per "+(cls||"la tua classe")+": non ancora attivi";
   bt.append(mk("Richiedi l’attivazione","",x=>{const sn=JSON.stringify({classe:cls,indirizzo:ls("ca_ind"),alias:(ls("ca_ali")||"").split(",").map(y=>y.trim()).filter(Boolean)});
-   try{navigator.clipboard.writeText(sn)}catch(e){}window.open("https://wa.me/"+((SS.contact&&SS.contact.whatsapp)||"")+"?text="+encodeURIComponent("Ciao! Puoi attivare calendario e promemoria ClassAI per la mia classe? Da aggiungere in config.json (digest):\n"+sn),"_blank","noopener")}))}
+   try{navigator.clipboard.writeText(sn)}catch(e){}window.open("https://wa.me/"+((SS.contact&&SS.contact.whatsapp)||"")+"?text="+encodeURIComponent("Ciao! Puoi attivare calendario e promemoria ClassAI per la mia classe ("+(SS.schools.find(s=>s.id===sid)||{name:""}).name+")? Richiesta da incollare in «python tools/gestisci.py classe»:\n"+sn),"_blank","noopener")}))}
  w.append(b,bt);el.append(ic,w);return el}
 async function boot(){try{SS=await (await fetch("data/schools.json",{cache:"no-cache"})).json()}catch(e){}
  OWNER=window.OWNER=SS.owner||"";title();try{PR=await (await fetch("data/profiles.json",{cache:"no-cache"})).json()}catch(e){}
