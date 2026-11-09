@@ -33,6 +33,18 @@ DESCRIPTION:Comunicazione n. 132: Avvio dell’orario completo delle lezion
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/itafs4heh3
 END:VEVENT
 BEGIN:VEVENT
+UID:307fced9113d05b0a3fa@classai
+DTSTAMP:20261109T000000Z
+DTSTART;VALUE=DATE:20261110
+DTEND;VALUE=DATE:20261111
+SUMMARY:📅 n. 137 – Partecipazione alla Gara PIZZA DOC SCHOOL 2026 – 
+ 10 novembre
+DESCRIPTION:Comunicazione n. 137: Partecipazione alla Gara PIZZA DOC SCHOOL
+  2026 – 10 novembre\nhttps://web.spaggiari.eu/sdg2/Documenti/RMII0123/g1
+ 1tom5ll9
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/g11tom5ll9
+END:VEVENT
+BEGIN:VEVENT
 UID:7a72854810519d688372@classai
 DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261113
