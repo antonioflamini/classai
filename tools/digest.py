@@ -97,7 +97,7 @@ def app_url(cfg):
 
 def upload_hint(it, cfg):
     a = app_url(cfg)
-    return (("\n📄 Non riesco a leggerla da solo. Tocca qui, poi ① Apri e ② Carica:\n" + f"{a}?carica={it['id']}") if a
+    return (("\n📄 Non riesco a leggerla da solo. Tocca qui, poi ① Scarica e ② Carica:\n" + f"{a}?carica={it['id']}") if a
             else "\n📄 Non riesco a leggerla da solo: scarica il PDF e caricalo in ClassAI.") if unread(it) else ""
 
 def short(it): return ("🔁 " if re.search(r"rettific|integrazion|annull", it["title"], re.I) else "") + re.sub(r"^Comunicazione n\. (\d+): ", r"n. \1 – ", it["title"])[:100]

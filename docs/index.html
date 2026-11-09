@@ -401,13 +401,16 @@ function greet(){const h=new Date().getHours(),g=h<12?"Buongiorno":h<18?"Buon po
  $("hmsg").textContent=m;$("hmsg").className="hmsg"+(sd.length&&sd[0].dd<=3?" urg":"");log("ClassAI: "+m,"a")}
 const unread=it=>it.status==="titolo"||it.status==="illeggibile"||(it.type==="pdf"&&(it.text||"").length<250);
 let PENDING=new URLSearchParams(location.search).get("carica"),SHARED=new URLSearchParams(location.search).has("shared");
-function openUpload(it){window.UPIT=it||null;const ok=it&&/^https?:\/\//i.test(it.url||"");
+/* Link di download diretto (lo stesso del pulsante "scarica" del sito): il PDF va in Download invece di aprirsi in un visualizzatore */
+const dlUrl=u=>/^https:\/\/web\.spaggiari\.eu\/sdg2\/Documenti\//.test(u||"")&&!/download=1/.test(u)?u+(u.includes("?")?"&":"?")+"download=1":u;
+function openUpload(it){window.UPIT=it||null;const ok=it&&/^https?:\/\//i.test(it.url||""),dl=ok&&dlUrl(it.url)!==it.url;
  $("qh").textContent=it?"📄 "+it.title:"📄 Carica una circolare";
- $("qt").textContent=it?"ClassAI non riesce a leggerla da solo. Tocca ①, scarica il PDF, poi tocca ②: al resto penso io.":"Scegli il PDF della circolare: riconosco da solo di quale comunicazione si tratta.";
- $("qopen").hidden=!ok;if(ok)$("qopen").href=it.url;$("qpick").textContent=it?"② Carica il PDF scaricato":"Scegli il PDF";
- upState("Più veloce su Android: apri il PDF scaricato → Condividi → ClassAI. Dal computer puoi anche trascinare il PDF qui.");
+ $("qt").textContent=it?(dl?"ClassAI non riesce a leggerla da solo. Tocca ①: il PDF si salva nei Download. Poi tocca ② e sceglilo (è in cima, tra i file recenti).":"ClassAI non riesce a leggerla da solo. Tocca ①, scarica il PDF, poi tocca ②."):"Scegli il PDF della circolare: riconosco da solo di quale comunicazione si tratta.";
+ $("qopen").hidden=!ok;if(ok){$("qopen").href=dlUrl(it.url);$("qopen").textContent=dl?"① Scarica la circolare":"① Apri la circolare"}
+ $("qpick").textContent=it?"② Carica il PDF scaricato":"Scegli il PDF";
+ upState("Se ① apre il PDF invece di scaricarlo: nel visualizzatore tocca ⋮ (o l’icona di condivisione) → Scarica, oppure Condividi → ClassAI. Dal computer puoi anche trascinare il PDF qui.");
  $("quick").hidden=false;$("quick").scrollIntoView({behavior:"smooth",block:"start"});
- say(it?"Tocca uno per aprire la circolare, poi due per caricarla.":"Scegli il PDF della circolare.")}
+ say(it?"Tocca uno per scaricare la circolare, poi due per caricarla.":"Scegli il PDF della circolare.")}
 function card(x){const it=x.it,el=document.createElement("div");el.className="ag";
  const b=document.createElement("div"),w=document.createElement("div"),h=document.createElement("b"),sp=document.createElement("span"),bt=document.createElement("div");
  const unr=it.found>ls("ca_last");b.textContent=!it.text?"❓":x.r.ok?"📣":"🚫";h.textContent=(unr?"● ":"")+it.title;
