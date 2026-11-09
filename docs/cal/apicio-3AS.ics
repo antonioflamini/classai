@@ -8,20 +8,8 @@ X-WR-TIMEZONE:Europe/Rome
 REFRESH-INTERVAL;VALUE=DURATION:PT6H
 X-PUBLISHED-TTL:PT6H
 BEGIN:VEVENT
-UID:9cec360c5aaef5d05084@classai
-DTSTAMP:20261108T000000Z
-DTSTART;VALUE=DATE:20261101
-DTEND;VALUE=DATE:20261102
-SUMMARY:📅 n. 110 – Partecipazione alla manifestazione 'Festa dell'Uva 
- e del Vino' ad Anzio – 31 ottobre e 1 no
-DESCRIPTION:Comunicazione n. 110: Partecipazione alla manifestazione 'Festa
-  dell'Uva e del Vino' ad Anzio – 31 ottobre e 1 novembre 2026\nhttps://w
- eb.spaggiari.eu/sdg2/Documenti/RMII0123/ovs57jehoh
-URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/ovs57jehoh
-END:VEVENT
-BEGIN:VEVENT
 UID:32951de174920cb71d2f@classai
-DTSTAMP:20261108T000000Z
+DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261104
 DTEND;VALUE=DATE:20261105
 SUMMARY:📅 n. 120 – Partecipazione alla registrazione televisiva presso
@@ -34,7 +22,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/titg2kf6b5
 END:VEVENT
 BEGIN:VEVENT
 UID:8c173f20a49d70333c8f@classai
-DTSTAMP:20261108T000000Z
+DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261109
 DTEND;VALUE=DATE:20261110
 SUMMARY:📅 n. 132 – Avvio dell’orario completo delle lezioni da luned
@@ -46,7 +34,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/itafs4heh3
 END:VEVENT
 BEGIN:VEVENT
 UID:7a72854810519d688372@classai
-DTSTAMP:20261108T000000Z
+DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261113
 DTEND;VALUE=DATE:20261114
 SUMMARY:📅 n. 128 – Incontri orientamento in entrata IC Nettuno 1 – 1
@@ -58,7 +46,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/ej2tda0a2n
 END:VEVENT
 BEGIN:VEVENT
 UID:2520dfb1a7a91efb5d0f@classai
-DTSTAMP:20261108T000000Z
+DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261114
 DTEND;VALUE=DATE:20261115
 SUMMARY:📅 n. 130 – Indicazioni operative per le prove generali del con
@@ -70,7 +58,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/c39uhntqh8
 END:VEVENT
 BEGIN:VEVENT
 UID:e9dfd14ccc1861d78b65@classai
-DTSTAMP:20261108T000000Z
+DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:📅 n. 102 – Partecipazione alla manifestazione “Corrilibera L
@@ -83,7 +71,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/kthg5o2e2i
 END:VEVENT
 BEGIN:VEVENT
 UID:5876e4ef1018ca7f3456@classai
-DTSTAMP:20261108T000000Z
+DTSTAMP:20261109T000000Z
 DTSTART;VALUE=DATE:20261118
 DTEND;VALUE=DATE:20261119
 SUMMARY:📅 n. 104 – Partecipazione alla manifestazione “Salone dello 
