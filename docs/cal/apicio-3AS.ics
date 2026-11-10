@@ -57,6 +57,18 @@ DESCRIPTION:Comunicazione n. 128: Incontri orientamento in entrata IC Nettu
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/ej2tda0a2n
 END:VEVENT
 BEGIN:VEVENT
+UID:0e8673ba25394f738493@classai
+DTSTAMP:20261110T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:📅 n. 141 – Giornata nazionale della colletta alimentare – 14
+  novembre 2026
+DESCRIPTION:Comunicazione n. 141: Giornata nazionale della colletta aliment
+ are – 14 novembre 2026\nhttps://web.spaggiari.eu/sdg2/Documenti/RMII0123
+ /vithtsr3j8
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/vithtsr3j8
+END:VEVENT
+BEGIN:VEVENT
 UID:2520dfb1a7a91efb5d0f@classai
 DTSTAMP:20261110T000000Z
 DTSTART;VALUE=DATE:20261114
@@ -92,5 +104,15 @@ DESCRIPTION:Comunicazione n. 104: Partecipazione alla manifestazione “Sal
  one dello Studente” – Fiera di Roma 18 novembre 2026\nhttps://web.spag
  giari.eu/sdg2/Documenti/RMII0123/4dkd6u17nr
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/4dkd6u17nr
+END:VEVENT
+BEGIN:VEVENT
+UID:c0d21d47ddf16e1d8870@classai
+DTSTAMP:20261110T000000Z
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+SUMMARY:📅 n. 144 – Assemblea degli studenti – 19 novembre 2026
+DESCRIPTION:Comunicazione n. 144: Assemblea degli studenti – 19 novembre 
+ 2026\nhttps://web.spaggiari.eu/sdg2/Documenti/RMII0123/j8te79ej9q
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/j8te79ej9q
 END:VEVENT
 END:VCALENDAR
