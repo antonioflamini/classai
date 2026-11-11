@@ -45,6 +45,18 @@ DESCRIPTION:Comunicazione n. 137: Partecipazione alla Gara PIZZA DOC SCHOOL
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/g11tom5ll9
 END:VEVENT
 BEGIN:VEVENT
+UID:62878d7902afaa2c3b33@classai
+DTSTAMP:20261111T000000Z
+DTSTART;VALUE=DATE:20261112
+DTEND;VALUE=DATE:20261113
+SUMMARY:📅 n. 147 – Aggiornamento sul regolare svolgimento delle attivi
+ tà didattiche per la giornata di domani
+DESCRIPTION:Comunicazione n. 147: Aggiornamento sul regolare svolgimento de
+ lle attività didattiche per la giornata di domani\, 12 novembre 2026\nht
+ tps://web.spaggiari.eu/sdg2/Documenti/RMII0123/03ac9k9c9h
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/03ac9k9c9h
+END:VEVENT
+BEGIN:VEVENT
 UID:7a72854810519d688372@classai
 DTSTAMP:20261111T000000Z
 DTSTART;VALUE=DATE:20261113
@@ -92,6 +104,18 @@ DESCRIPTION:Comunicazione n. 102: Partecipazione alla manifestazione “Cor
  mbre 2026) – Raccolta adesioni\nhttps://web.spaggiari.eu/sdg2/Documenti/
  RMII0123/kthg5o2e2i
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/kthg5o2e2i
+END:VEVENT
+BEGIN:VEVENT
+UID:90cd4cf50d29b37ecd10@classai
+DTSTAMP:20261111T000000Z
+DTSTART;VALUE=DATE:20261118
+DTEND;VALUE=DATE:20261119
+SUMMARY:📅 n. 146 – Visita presso Salone dello studente – 18 novembre
+  2026
+DESCRIPTION:Comunicazione n. 146: Visita presso Salone dello studente – 1
+ 8 novembre 2026\nhttps://web.spaggiari.eu/sdg2/Documenti/RMII0123/iq07hhk9
+ 27
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/iq07hhk927
 END:VEVENT
 BEGIN:VEVENT
 UID:5876e4ef1018ca7f3456@classai
