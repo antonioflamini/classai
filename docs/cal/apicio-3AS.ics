@@ -56,6 +56,18 @@ DESCRIPTION:Comunicazione n. 128: Incontri orientamento in entrata IC Nettu
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/ej2tda0a2n
 END:VEVENT
 BEGIN:VEVENT
+UID:3c709e22fe55815da5b1@classai
+DTSTAMP:20261113T000000Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:📅 n. 151 – Partecipazione evento “La Scelta + Guests in Conc
+ erto” – 14 novembre 2026
+DESCRIPTION:Comunicazione n. 151: Partecipazione evento “La Scelta + Gues
+ ts in Concerto” – 14 novembre 2026\nhttps://web.spaggiari.eu/sdg2/Docu
+ menti/RMII0123/3lhqb6hqmi
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/3lhqb6hqmi
+END:VEVENT
+BEGIN:VEVENT
 UID:0e8673ba25394f738493@classai
 DTSTAMP:20261113T000000Z
 DTSTART;VALUE=DATE:20261114
@@ -115,6 +127,16 @@ DESCRIPTION:Comunicazione n. 104: Partecipazione alla manifestazione “Sal
  one dello Studente” – Fiera di Roma 18 novembre 2026\nhttps://web.spag
  giari.eu/sdg2/Documenti/RMII0123/4dkd6u17nr
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/4dkd6u17nr
+END:VEVENT
+BEGIN:VEVENT
+UID:0bf6058d38727363b754@classai
+DTSTAMP:20261113T000000Z
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+SUMMARY:📅 n. 150 – Masterclass formativa Amadori – 19 novembre 2026
+DESCRIPTION:Comunicazione n. 150: Masterclass formativa Amadori – 19 nove
+ mbre 2026\nhttps://web.spaggiari.eu/sdg2/Documenti/RMII0123/8chk7hh8mn
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/8chk7hh8mn
 END:VEVENT
 BEGIN:VEVENT
 UID:c0d21d47ddf16e1d8870@classai
