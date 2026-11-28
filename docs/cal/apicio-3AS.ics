@@ -8,18 +8,8 @@ X-WR-TIMEZONE:Europe/Rome
 REFRESH-INTERVAL;VALUE=DURATION:PT6H
 X-PUBLISHED-TTL:PT6H
 BEGIN:VEVENT
-UID:d75ba2ce6981c344f704@classai
-DTSTAMP:20261127T000000Z
-DTSTART;VALUE=DATE:20261120
-DTEND;VALUE=DATE:20261121
-SUMMARY:📅 n. 153 – Sciopero del giorno 20 novembre 2026
-DESCRIPTION:Comunicazione n. 153: Sciopero del giorno 20 novembre 2026\nhtt
- ps://web.spaggiari.eu/sdg2/Documenti/RMII0123/nos0omfd8o
-URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/nos0omfd8o
-END:VEVENT
-BEGIN:VEVENT
 UID:e5e5cbc7270d0789ff7a@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261125
 SUMMARY:📅 n. 166 – Comunicazione esami di certificazione LanguageCert 
@@ -31,7 +21,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/pkt08k28c3
 END:VEVENT
 BEGIN:VEVENT
 UID:6749a505e4d4673c1a49@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261125
 DTEND;VALUE=DATE:20261126
 SUMMARY:📅 n. 161 – Giornata internazionale contro la violenza sulle do
@@ -44,7 +34,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/fhrdojqdbp
 END:VEVENT
 BEGIN:VEVENT
 UID:c4ed789ac4c673f91442@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261126
 DTEND;VALUE=DATE:20261127
 SUMMARY:📅 n. 172 – Masterclass sulla viennoiserie moderna del 26 novem
@@ -56,7 +46,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/m73vdredsr
 END:VEVENT
 BEGIN:VEVENT
 UID:f184004ea675005e1021@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261126
 DTEND;VALUE=DATE:20261127
 SUMMARY:📅 n. 154 – Spettacolo teatrale “Il silenzio fa rumore” –
@@ -69,7 +59,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/bn3tdus2v7
 END:VEVENT
 BEGIN:VEVENT
 UID:1bf2dd40c4714bcb2913@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261127
 DTEND;VALUE=DATE:20261128
 SUMMARY:📅 n. 162 – Incontro con il personale dello “Sportello Rosa
@@ -81,7 +71,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/uc410hs0m8
 END:VEVENT
 BEGIN:VEVENT
 UID:0511d6a27bc4c6d840fc@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261128
 DTEND;VALUE=DATE:20261129
 SUMMARY:📅 n. 175 – Indicazioni operative Evento coffe break del 28 nov
@@ -93,7 +83,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/u0013tgho7
 END:VEVENT
 BEGIN:VEVENT
 UID:1fff3445789983ac2b39@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261129
 DTEND;VALUE=DATE:20261130
 SUMMARY:📅 n. 174 – Mobilità Erasmus+ KA2 – Progetto “SAMBA” –
@@ -104,8 +94,30 @@ DESCRIPTION:Comunicazione n. 174: Mobilità Erasmus+ KA2 – Progetto “SA
 URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/sbmtrt3v36
 END:VEVENT
 BEGIN:VEVENT
+UID:afb4eb13338792be5027@classai
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:📅 n. 180 – Evento ''Percorsi di Legalità'' – Incontro con i
+ l Prefetto Renato Cortese - 01 dicembre 202
+DESCRIPTION:Comunicazione n. 180: Evento ''Percorsi di Legalità'' – Inco
+ ntro con il Prefetto Renato Cortese - 01 dicembre 2026\nhttps://web.spaggi
+ ari.eu/sdg2/Documenti/RMII0123/d5sqtgl106
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/d5sqtgl106
+END:VEVENT
+BEGIN:VEVENT
+UID:807003d85abb84503ceb@classai
+DTSTAMP:20261128T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:📅 n. 181 – Sciopero del giorno 04 dicembre 2026
+DESCRIPTION:Comunicazione n. 181: Sciopero del giorno 04 dicembre 2026\nhtt
+ ps://web.spaggiari.eu/sdg2/Documenti/RMII0123/g178lr0fc5
+URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/g178lr0fc5
+END:VEVENT
+BEGIN:VEVENT
 UID:eb89c5e80243abe218a9@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261205
 DTEND;VALUE=DATE:20261206
 SUMMARY:📅 n. 174 – Mobilità Erasmus+ KA2 – Progetto “SAMBA” –
@@ -117,7 +129,7 @@ URL:https://web.spaggiari.eu/sdg2/Documenti/RMII0123/sbmtrt3v36
 END:VEVENT
 BEGIN:VEVENT
 UID:f6c7afd99b63c5c9ecbc@classai
-DTSTAMP:20261127T000000Z
+DTSTAMP:20261128T000000Z
 DTSTART;VALUE=DATE:20261208
 DTEND;VALUE=DATE:20261209
 SUMMARY:📅 n. 171 – Chiusura Istituto e sospensione delle attività did
